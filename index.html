@@ -56,6 +56,34 @@ button:focus-visible{outline:4px solid var(--gold);outline-offset:3px}
 #soon{position:fixed;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px;background:#0b114aee;z-index:20;text-align:center;padding:24px}
 #soon.on{display:flex}#soon h2{margin:0;font-size:clamp(26px,7vw,36px)}
 #soon button,.back{background:var(--gold);color:#3a2a00;font-weight:700;font-size:18px;padding:12px 24px;border-radius:16px;box-shadow:0 4px 0 #a07800}
+
+/* โหมดผู้ปกครอง */
+#pbtn{position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;gap:6px;background:#ffffff1c;border:2px solid #ffffff44;border-radius:999px;padding:8px 14px;font-size:14px;font-weight:700}
+#pbtn svg{width:16px;height:16px}
+#gate,#parent{position:fixed;inset:0;display:none;z-index:30;background:#0b114af7;flex-direction:column;align-items:center;gap:12px;padding:calc(18px + env(safe-area-inset-top,0px)) 14px 18px;text-align:center;overflow:auto}
+#gate.on,#parent.on{display:flex}
+#gate{justify-content:center}
+#gate h2,#parent h2{margin:0;font-size:24px}
+#gate .q{font-size:38px;font-weight:800;color:var(--gold)}
+#gate .ans{min-width:150px;height:56px;border-radius:14px;background:#ffffff18;border:3px solid #ffffff44;font-size:34px;font-weight:800;line-height:50px;letter-spacing:4px}
+#gate.shake .ans{animation:shk .4s}
+@keyframes shk{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+.pad{display:grid;grid-template-columns:repeat(3,76px);gap:10px}
+.pad button{height:62px;border-radius:16px;background:var(--panel);border:3px solid var(--glass);font-size:28px;font-weight:800;box-shadow:0 4px 0 #16206b}
+.pad button.ok{background:var(--ok);color:#073;font-size:18px}.pad button.del{font-size:18px}
+#parent p{margin:0;font-size:14px;opacity:.9;max-width:380px;line-height:1.4}
+.ptabs{display:flex;gap:8px;width:min(400px,100%)}
+.ptabs button{flex:1;border-radius:14px;padding:8px 4px;background:var(--panel);border:3px solid var(--c);font-weight:800;font-size:15px;line-height:1.2}
+.ptabs button small{display:block;font-size:13px;font-weight:700;opacity:.9}
+.ptabs button.on{background:var(--c);color:#102}
+.pgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;width:min(400px,100%)}
+.pgrid button{height:42px;border-radius:12px;background:#ffffff14;border:2px solid #ffffff33;font-size:20px;font-weight:700}
+.pgrid button.on{background:var(--gold);color:#3a2a00;border-color:#fff}
+.pgrid button:disabled{opacity:.2}
+#pmsg{min-height:20px;font-size:14px;font-weight:700;color:var(--gold)}
+.pbtns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.pbtns button{padding:11px 20px;border-radius:14px;font-size:17px;font-weight:700;background:var(--gold);color:#3a2a00}
+.pbtns button.g{background:#ffffff22;color:#fff}
 #level{position:relative}
 .screen{display:none;height:100%;flex-direction:column}
 .screen.on{display:flex}
@@ -82,7 +110,7 @@ button:focus-visible{outline:4px solid var(--gold);outline-offset:3px}
 .chars button span{display:block;width:84px;height:84px;margin:0 auto 4px}
 .chars button:active{transform:translateY(4px);box-shadow:0 2px 0 #16206b}
 #hud{padding:10px 14px 4px;display:flex;gap:10px;align-items:flex-start}
-#hud .tip{flex:1;font-size:clamp(13px,3.6vw,18px);line-height:1.35;background:rgba(255,255,255,.1);border-radius:14px;padding:8px 12px}
+#hud .tip{flex:1;font-size:clamp(13px,3.6vw,18px);line-height:1.35;white-space:nowrap;background:rgba(255,255,255,.1);border-radius:14px;padding:8px 12px}
 .bump{position:absolute;left:0;right:0;top:-6px;font-size:34px;font-weight:700;pointer-events:none;animation:bumpup 1s forwards;text-shadow:0 0 8px #fff,0 0 3px #fff}
 .bump.up{color:#0c8a3f}.bump.down{color:#d11f2a}
 @keyframes bumpup{from{transform:translateY(0);opacity:1}to{transform:translateY(-40px);opacity:0}}
@@ -179,12 +207,24 @@ button:focus-visible{outline:4px solid var(--gold);outline-offset:3px}
 </section>
 
 <section id="level" class="screen">
-  <h1>สระอา (า)</h1>
+  <h1>สระอา</h1>
   <p>เลือกระดับ</p>
   <div class="levels" id="levels"></div>
   <div id="micnote">กรุณากด “อนุญาต” ให้ใช้ไมโครโฟนในหน้าต่างที่ขึ้นมา</div>
   <button id="tohome" class="link" type="button">กลับหน้าแรก</button>
+  <button id="pbtn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>โหมดผู้ปกครอง</button>
 </section>
+
+<div id="gate"><h2>โหมดผู้ปกครอง</h2><div>ตอบโจทย์เลขเพื่อเข้า (จิ้มตัวเลขคำตอบ)</div><div class="q" id="gq"></div><div class="ans" id="ga"></div>
+  <div class="pad" id="gpad"></div><button class="link" id="gcancel" type="button">ยกเลิก</button></div>
+
+<div id="parent"><h2>โหมดผู้ปกครอง</h2>
+  <p>ท่านสามารถกำหนดคำศัพท์ด้วยตัวท่านเอง กดที่ก้อน “ง่าย” / “ปานกลาง” / “ยาก” เพื่อเตรียมเลือกคำ แล้วแตะคำในตารางเพื่อเลือกหรือเอาออก (จำนวนตามโควตาของแต่ละระดับ)</p>
+  <div class="ptabs" id="ptabs"></div>
+  <div class="pgrid" id="pgrid"></div>
+  <div id="pmsg"></div>
+  <div class="pbtns"><button id="psave" type="button">บันทึก</button><button id="preset" class="g" type="button">คืนค่าเดิม</button><button id="pcancel" class="g" type="button">ยกเลิก</button></div>
+</div>
 
 <div id="soon"><h2>ตอนนี้ยังไม่พร้อม รอก่อนนะ</h2><button id="soonback" type="button">กลับหน้าแรก</button></div>
 
@@ -197,7 +237,7 @@ button:focus-visible{outline:4px solid var(--gold);outline-offset:3px}
 
 <section id="game" class="screen">
   <div id="hud">
-    <div class="tip">เสียงของคุณสามารถช่วยกำจัดมอนสเตอร์ได้ ให้พูดออกเสียงตามคำที่แสดงบนหน้าจอ</div>
+    <div class="tip">เสียงของคุณสามารถช่วยกำจัด<br>มอนสเตอร์ได้ ให้พูดออกเสียง<br>ตามคำที่แสดงบนหน้าจอ</div>
     <div id="score">คะแนน<b>0</b></div>
   </div>
   <div id="arena">
@@ -275,14 +315,21 @@ const CHARS=[["tiger","เสือโคร่ง"],["giraffe","ยีราฟ
 // คำทั้งหมด 27 คำ และระดับความยาก (ง่าย 5 คำ / ปานกลาง 10 คำ / ยาก สุ่ม 20 คำจาก 27 คำ)
 const ALL=["กา","ขา","คา","งา","จา","ฉา","ชา","ซา","ดา","ตา","ถา","ทา","นา","ปา","ผา","ฝา","พา","ฟา","มา","ยา","รา","ลา","วา","สา","หา","อา","ฮา"];
 const LEVELS={
-  easy:{n:"ง่าย",d:"5 คำ",w:"กา ขา ตา นา ยา",stars:1,c:"#2fbf71",words:["กา","ขา","ตา","นา","ยา"],pass:0.7},
-  mid:{n:"ปานกลาง",d:"10 คำ",w:"เพิ่ม งา จา ซา ลา ปา",stars:2,c:"#ff9a2e",words:["กา","ขา","ตา","นา","ยา","งา","จา","ซา","ลา","ปา"],pass:0.85},
-  hard:{n:"ยาก",d:"สุ่ม 20 คำ",w:"จากทั้งหมด 27 คำ",stars:3,c:"#ff5a5f",pick:20,pass:0.95}
+  easy:{n:"ง่าย",d:"5 คำ",stars:1,c:"#2fbf71",pass:0.8},
+  mid:{n:"ปานกลาง",d:"10 คำ",stars:2,c:"#ff9a2e",pass:0.9},
+  hard:{n:"ยาก",d:"สุ่ม 20 คำ",stars:3,c:"#ff5a5f",pass:0.9}
 };
+const ALL_EE=["กี","ขี","คี","งี","จี","ฉี","ชี","ซี","ดี","ตี","ถี","ที","นี","บี","ปี","ผี","ฝี","พี","ฟี","มี","ยี","รี","ลี","วี","สี","อี","ฮี"];
+const STAGES={
+  aa:{vow:"อา",title:"สระอา",all:ALL,easy:["กา","ขา","ตา","นา","ยา"],mid:["กา","ขา","ตา","นา","ยา","งา","ลา","ปา","มา","หา"]},
+  ee:{vow:"อี",title:"สระอี",all:ALL_EE,easy:["สี","มี","ดี","ตี","ปี"],mid:["สี","มี","ดี","ตี","ปี","ผี","ชี","บี","ที","ซี"]}
+};
+let stage="aa";
 // คำที่มีรูปประกอบ (คำอื่นไม่มีความหมายที่วาดง่าย จึงแสดงเฉพาะตัวอักษร)
+const PICKEE={"สี":"palette","มี":"hold","ดี":"thumb","ตี":"drum","ปี":"cake","ผี":"ghost","ชี":"nun","ที":"L_T","บี":"L_B","อี":"L_E","ซี":"L_C","จี":"L_G","พี":"L_P","วี":"L_V"};
 const PICKEY={"กา":"crow","ตา":"eye","ยา":"pill","ปา":"dart","ขา":"leg","นา":"field","มา":"come","หา":"search","ชา":"tea","ผา":"cliff","งา":"tusk","ลา":"donkey","ฝา":"lid","ทา":"brush","ฮา":"laugh"};
 let results=[],bestAcc=0;let level="easy",pool=[],lastWord=null,priming=false;
-const buildPool=()=>{const L=LEVELS[level];const ws=L.words?L.words.slice():shuffle(ALL).slice(0,L.pick);return ws.map(w=>[w,PICKEY[w]||null])};
+const buildPool=()=>{const S=STAGES[stage];const cw=customWords(stage,level);const ws=cw?cw.slice():level==="hard"?shuffle(S.all).slice(0,20):S[level].slice();const pk=stage==="aa"?PICKEY:PICKEE;return ws.map(w=>[w,pk[w]||null])};
 // สลับลำดับใหม่ทุกครั้งที่เล่น และไม่ให้คำสุดท้ายรอบก่อนซ้ำเป็นคำแรกของรอบใหม่
 const refill=()=>{queue=shuffle(pool);const n=queue.length;if(n>1&&queue[n-1][0]===lastWord){const t=queue[0];queue[0]=queue[n-1];queue[n-1]=t}};
 const PIC={
@@ -308,7 +355,7 @@ const confOK=c=>!c||c>=LEVELS[level].pass;
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 let ch=0,php,ehp,score,queue=[],cur,busy=true,playing=false,rec=null,tmo=null,micDenied=false,fxOn=false,fxArena=false,armed=false,hintId=0,missed={},timerOn=false,extended=false,gotSpeech=false;
 // เลือกเสียงไทยที่ฟังเป็นธรรมชาติที่สุดเท่าที่เครื่องมี
-function thaiVoice(){try{const vs=speechSynthesis.getVoices().filter(v=>/^th/i.test(v.lang));if(!vs.length)return null;return vs.find(v=>/premium|enhanced|natural|narisa|kanya|google/i.test(v.name))||vs[0]}catch(e){return null}}
+function thaiVoice(){try{const vs=speechSynthesis.getVoices().filter(v=>/^th/i.test(v.lang));if(!vs.length)return null;for(const re of [/premium/i,/enhanced/i,/natural|neural/i,/narisa|kanya|google/i]){const f=vs.find(v=>re.test(v.name));if(f)return f}return vs[0]}catch(e){return null}}
 try{speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>{}}catch(e){}
 // อ่านโจทย์ออกเสียง เช่น "กอ" แล้ว "อา" (เวลายังไม่เดินระหว่างนี้)
 function speakSeq(parts,done){
@@ -331,7 +378,77 @@ function speakSeq(parts,done){
     setTimeout(fin,4500);
   }catch(e){fin()}
 }
-const hintParts=w=>[w[0][0]+"อ","อา"];
+
+const LET=(c,col)=>`<svg viewBox="0 0 100 100"><rect x="8" y="8" width="84" height="84" rx="20" fill="${col}" stroke="#fff" stroke-width="4"/><text x="50" y="72" font-size="62" font-weight="800" text-anchor="middle" fill="#fff" font-family="Arial,Helvetica,sans-serif">${c}</text></svg>`;
+Object.assign(PIC,{
+L_T:LET("T","#e8503a"),L_B:LET("B","#2f80ed"),L_E:LET("E","#27ae60"),L_C:LET("C","#f2994a"),L_G:LET("G","#9b51e0"),L_P:LET("P","#eb5f9c"),L_V:LET("V","#00a6a6"),
+palette:`<svg viewBox="0 0 100 100"><path d="M50 12C24 12 8 32 10 54c2 22 22 34 40 32 10-1 8-10 4-14-5-6 0-14 8-14h14c10 0 16-6 14-18C86 26 70 12 50 12Z" fill="#e8c28a" stroke="#8a5a22" stroke-width="4" ${S}/><circle cx="30" cy="38" r="7" fill="#e8503a"/><circle cx="48" cy="28" r="7" fill="#f2c94c"/><circle cx="68" cy="34" r="7" fill="#27ae60"/><circle cx="28" cy="60" r="7" fill="#2f80ed"/></svg>`,
+hold:`<svg viewBox="0 0 100 100"><circle cx="50" cy="38" r="22" fill="#e8503a" stroke="#8a2a1a" stroke-width="4"/><path d="M30 52q-14 6-12 22q4 14 24 14h22q18 0 22-14q2-12-10-18l-12 4q-14 4-28-2Z" fill="#ffd9a8" stroke="#a8743a" stroke-width="4" ${S}/><path d="M38 80v-14M50 82v-16M62 80v-14" stroke="#a8743a" stroke-width="3" ${S}/></svg>`,
+thumb:`<svg viewBox="0 0 100 100"><path d="M34 46h-14v40h14Z" fill="#7fb7ff" stroke="#2c5aa0" stroke-width="4" ${S}/><path d="M34 48l14-8q6-12 4-26q10-2 12 12l-2 14h20q10 2 8 12l-4 24q-2 10-12 10H34Z" fill="#ffd9a8" stroke="#a8743a" stroke-width="4" ${S}/></svg>`,
+drum:`<svg viewBox="0 0 100 100"><ellipse cx="50" cy="44" rx="34" ry="12" fill="#f4e6c4" stroke="#7a2a1a" stroke-width="4"/><path d="M16 44v28q0 14 34 14t34-14V44" fill="#e8503a" stroke="#7a2a1a" stroke-width="4" ${S}/><path d="M26 54l12 26M50 56v28M74 54L62 80" stroke="#f4e6c4" stroke-width="3" ${S}/><path d="M18 10l26 26M82 10L56 36" stroke="#a8743a" stroke-width="5" ${S}/><circle cx="18" cy="10" r="5" fill="#a8743a"/><circle cx="82" cy="10" r="5" fill="#a8743a"/></svg>`,
+cake:`<svg viewBox="0 0 100 100"><rect x="14" y="52" width="72" height="36" rx="8" fill="#f6b6c8" stroke="#a8486a" stroke-width="4"/><path d="M14 62q9 10 18 0t18 0 18 0 18 0" fill="#fff" stroke="#a8486a" stroke-width="3" ${S}/><rect x="46" y="30" width="8" height="22" rx="3" fill="#4aa3ff" stroke="#1f5a9a" stroke-width="3"/><path d="M50 12q10 10 0 17q-10-7 0-17Z" fill="#ffb800" stroke="#d96b00" stroke-width="3"/></svg>`,
+ghost:`<svg viewBox="0 0 100 100"><path d="M18 90V46q0-34 32-34t32 34v44l-11-9-10 9-11-9-11 9-10-9Z" fill="#fff" stroke="#8a8fb8" stroke-width="4" ${S}/><circle cx="38" cy="46" r="6" fill="#222"/><circle cx="62" cy="46" r="6" fill="#222"/><path d="M40 62q10 9 20 0" stroke="#222" stroke-width="4" fill="none" ${S}/><circle cx="30" cy="58" r="5" fill="#f9b6c8" opacity=".8"/><circle cx="70" cy="58" r="5" fill="#f9b6c8" opacity=".8"/></svg>`,
+nun:`<svg viewBox="0 0 100 100"><path d="M50 8C26 8 18 28 18 54v38h64V54C82 28 74 8 50 8Z" fill="#2b2b3a" stroke="#111" stroke-width="4"/><ellipse cx="50" cy="46" rx="22" ry="26" fill="#ffe2c2" stroke="#a8743a" stroke-width="3"/><path d="M28 34q22-20 44 0v-6q-22-16-44 0Z" fill="#fff" stroke="#8a8fb8" stroke-width="2"/><circle cx="41" cy="48" r="3.4" fill="#222"/><circle cx="59" cy="48" r="3.4" fill="#222"/><path d="M42 60q8 7 16 0" stroke="#a83a3a" stroke-width="3" fill="none" ${S}/></svg>`
+});
+
+// ===== โหมดผู้ปกครอง: ให้แม่เลือกคำเอง =====
+const C44=["ก","ข","ฃ","ค","ฅ","ฆ","ง","จ","ฉ","ช","ซ","ฌ","ญ","ฎ","ฏ","ฐ","ฑ","ฒ","ณ","ด","ต","ถ","ท","ธ","น","บ","ป","ผ","ฝ","พ","ฟ","ภ","ม","ย","ร","ล","ว","ศ","ษ","ส","ห","ฬ","อ","ฮ"];
+const QUOTA={easy:5,mid:10,hard:20};
+const VOWCH={aa:"า",ee:"ี"};
+const BANNED={aa:[],ee:["หี"]};
+const loadCustom=()=>{try{return JSON.parse(localStorage.getItem("mvw_custom")||"{}")||{}}catch(e){return {}}};
+const saveCustom=o=>{try{localStorage.setItem("mvw_custom",JSON.stringify(o));return true}catch(e){return false}};
+const customWords=(st,lv)=>{const a=((loadCustom()[st]||{})[lv]);return Array.isArray(a)&&a.length===QUOTA[lv]?a:null};
+const defaultWords=(st,lv)=>lv==="hard"?null:STAGES[st][lv];
+let draft=null,ptab="easy";
+// โจทย์เลข 2 หลัก (บวก ลบ คูณ หาร) ให้จิ้มตัวเลขคำตอบ
+let gAns="",gSol=0;
+function newGate(){
+  const r=(a,b)=>a+Math.floor(Math.random()*(b-a+1)),t=r(0,3);let q;
+  if(t===0){const a=r(21,89),b=r(12,79);q=`${a} + ${b}`;gSol=a+b}
+  else if(t===1){const a=r(52,99),b=r(11,49);q=`${a} − ${b}`;gSol=a-b}
+  else if(t===2){const a=r(11,25),b=r(11,19);q=`${a} × ${b}`;gSol=a*b}
+  else{const b=r(11,19),c=r(2,9);q=`${b*c} ÷ ${b}`;gSol=c}
+  gAns="";$("#gq").textContent=q+" = ?";$("#ga").textContent="";
+}
+$("#gpad").innerHTML=[1,2,3,4,5,6,7,8,9].map(n=>`<button type="button" data-k="${n}">${n}</button>`).join("")+`<button type="button" class="del" data-k="del">ลบ</button><button type="button" data-k="0">0</button><button type="button" class="ok" data-k="ok">ตกลง</button>`;
+$("#gpad").onclick=e=>{const b=e.target.closest("button");if(!b)return;const k=b.dataset.k;
+  if(k==="del")gAns=gAns.slice(0,-1);
+  else if(k==="ok"){if(+gAns===gSol&&gAns!==""){$("#gate").classList.remove("on");openParent();return}
+    const g=$("#gate");g.classList.remove("shake");g.offsetWidth;g.classList.add("shake");newGate();return}
+  else if(gAns.length<4)gAns+=k;
+  $("#ga").textContent=gAns};
+$("#pbtn").onclick=()=>{newGate();$("#gate").classList.add("on")};
+$("#gcancel").onclick=()=>$("#gate").classList.remove("on");
+function openParent(){
+  const cu=loadCustom()[stage]||{};
+  draft={};for(const lv of ["easy","mid","hard"])draft[lv]=Array.isArray(cu[lv])&&cu[lv].length===QUOTA[lv]?cu[lv].slice():(defaultWords(stage,lv)?defaultWords(stage,lv).slice():[]);
+  ptab="easy";$("#pmsg").textContent="";drawParent();$("#parent").classList.add("on");
+}
+function drawParent(){
+  $("#ptabs").innerHTML=Object.entries(LEVELS).map(([k,L])=>`<button type="button" data-k="${k}" class="${k===ptab?"on":""}" style="--c:${L.c}">${L.n}<small>${draft[k].length}/${QUOTA[k]}</small></button>`).join("");
+  const vc=VOWCH[stage],sel=new Set(draft[ptab]);
+  $("#pgrid").innerHTML=C44.map(c=>{const w=c+vc,ban=BANNED[stage].includes(w);return `<button type="button" data-w="${w}" class="${sel.has(w)?"on":""}"${ban?" disabled":""}>${w}</button>`}).join("")+"<span></span>";
+}
+$("#ptabs").onclick=e=>{const b=e.target.closest("button");if(!b)return;ptab=b.dataset.k;$("#pmsg").textContent=ptab==="hard"&&!draft.hard.length?"ถ้าไม่เลือก ระดับยากจะสุ่ม 20 คำจากทุกคำเหมือนเดิม":"";drawParent()};
+$("#pgrid").onclick=e=>{const b=e.target.closest("button[data-w]");if(!b)return;const w=b.dataset.w,a=draft[ptab],i=a.indexOf(w);
+  if(i>=0){a.splice(i,1);$("#pmsg").textContent=""}
+  else if(a.length>=QUOTA[ptab]){$("#pmsg").textContent=`เต็มโควตาแล้ว (${QUOTA[ptab]} คำ) เอาคำอื่นออกก่อนนะคะ`;return}
+  else a.push(w);
+  drawParent()};
+$("#preset").onclick=()=>{draft[ptab]=defaultWords(stage,ptab)?defaultWords(stage,ptab).slice():[];$("#pmsg").textContent="คืนค่าเดิมของระดับนี้แล้ว";drawParent()};
+$("#pcancel").onclick=()=>$("#parent").classList.remove("on");
+$("#psave").onclick=()=>{
+  for(const lv of ["easy","mid"])if(draft[lv].length!==QUOTA[lv]){ptab=lv;drawParent();$("#pmsg").textContent=`ระดับ${LEVELS[lv].n}ต้องเลือกให้ครบ ${QUOTA[lv]} คำ`;return}
+  if(draft.hard.length&&draft.hard.length!==QUOTA.hard){ptab="hard";drawParent();$("#pmsg").textContent=`ระดับยากต้องเลือกให้ครบ ${QUOTA.hard} คำ (หรือคืนค่าเดิมเพื่อสุ่มเอง)`;return}
+  const all=loadCustom(),o=all[stage]||{};
+  for(const lv of ["easy","mid","hard"]){
+    const d=defaultWords(stage,lv),same=d&&d.length===draft[lv].length&&d.every(w=>draft[lv].includes(w));
+    if(!draft[lv].length||same)delete o[lv];else o[lv]=draft[lv];
+  }
+  all[stage]=o;saveCustom(all);$("#parent").classList.remove("on");drawLevels();
+};
+const hintParts=w=>[w[0][0]+"อ",STAGES[stage].vow];
 function stopSpeech(){hintId++;try{speechSynthesis.cancel()}catch(e){}}
 function startTimer(){
   armed=true;timerOn=true;extended=false;
@@ -386,7 +503,9 @@ const accOf=(heard,conf,target)=>{const h=canon(heard),t=canon(target);if(!h||!t
   const sim=h.includes(t)?1:Math.max(0,1-lev(h,t)/Math.max(h.length,t.length));
   return Math.round(100*(conf>0?(sim*.6+Math.min(1,conf)*.4):sim))};
 // \u0e04\u0e33\u0e17\u0e35\u0e48\u0e44\u0e21\u0e04\u0e4c\u0e44\u0e14\u0e49\u0e22\u0e34\u0e19\u0e40\u0e1b\u0e47\u0e19\u0e41\u0e04\u0e48\u0e40\u0e2a\u0e35\u0e22\u0e07\u0e2d\u0e48\u0e32\u0e19\u0e42\u0e08\u0e17\u0e22\u0e4c\u0e02\u0e2d\u0e07\u0e23\u0e30\u0e1a\u0e1a\u0e40\u0e2d\u0e07 (\u0e40\u0e0a\u0e48\u0e19 "\u0e2d\u0e32", "\u0e02\u0e2d") \u0e44\u0e21\u0e48\u0e19\u0e31\u0e1a\u0e40\u0e1b\u0e47\u0e19\u0e04\u0e33\u0e15\u0e2d\u0e1a
-const isEcho=(heard,target)=>{const n=canon(heard),c=target[0];if(target[0]==="\u0e2d\u0e32")return n===""||n===canon("\u0e2d\u0e2d")||n===canon("\u0e2d\u0e2d\u0e2d\u0e32");return n===""||n==="\u0e2d\u0e32"||n==="\u0e2d"||n==="\u0e2d\u0e32\u0e2d\u0e32"||n===canon(c+"\u0e2d")||n===canon(c+"\u0e2d\u0e2d\u0e32")};
+const isEcho=(heard,target)=>{const n=canon(heard),c=target[0],v=STAGES[stage].vow;
+  if(c==="\u0e2d")return n===""||n===canon("\u0e2d\u0e2d")||n===canon("\u0e2d\u0e2d"+v);
+  return n===""||n===canon(v)||n==="\u0e2d"||n===canon(v+v)||n===canon(c+"\u0e2d")||n===canon(c+"\u0e2d"+v)};
 
 let actx,master;
 function ac(){try{if(!actx){actx=new (window.AudioContext||window.webkitAudioContext)();const cp=actx.createDynamicsCompressor();master=actx.createGain();master.gain.value=.9;master.connect(cp);cp.connect(actx.destination)}if(actx.state==="suspended")actx.resume();return actx}catch(e){return null}}
@@ -401,7 +520,7 @@ function boom(big=1){const c=ac();if(!c)return;try{const t=c.currentTime;
 
 $("#chars").innerHTML=CHARS.map((c,i)=>`<button data-i="${i}"><span>${ART[c[0]]}</span>${c[1]}</button>`).join("");
 const STAR='<svg viewBox="0 0 24 24"><path d="M12 2l3 6.9 7.5.7-5.7 5 1.7 7.4L12 18l-6.5 4 1.7-7.4-5.7-5 7.5-.7z" fill="currentColor"/></svg>';
-$("#levels").innerHTML=Object.entries(LEVELS).map(([k,L])=>`<button type="button" data-k="${k}" style="--c:${L.c}"><span><b>${L.n}</b><small>${L.d}</small></span><span class="stars" style="color:${L.c}">${STAR.repeat(L.stars)}</span></button>`).join("");
+function drawLevels(){$("#levels").innerHTML=Object.entries(LEVELS).map(([k,L])=>`<button type="button" data-k="${k}" style="--c:${L.c}"><span><b>${L.n}</b><small>${L.d}${customWords(stage,k)?" · คัดเอง":""}</small></span><span class="stars" style="color:${L.c}">${STAR.repeat(L.stars)}</span></button>`).join("");}drawLevels();
 $("#levels").onclick=e=>{const b=e.target.closest("button[data-k]");if(!b||priming)return;
   level=b.dataset.k;ac();unlockTTS();priming=true;
   primeMic().then(()=>{priming=false;$("#micnote").style.display="none";start()});
@@ -440,7 +559,7 @@ addEventListener("resize",()=>{drawTrail();placeShip(shipAt,false)});
 $("#map").onclick=e=>{const n=e.target.closest(".node");if(!n||traveling)return;const i=+n.dataset.i;
   traveling=true;shipAt=i;const sh=$("#ship");sh.classList.add("fly");placeShip(i,true); // เดินทาง 1 วินาที
   setTimeout(()=>sh.classList.remove("fly"),1000);
-  setTimeout(()=>{traveling=false;if(i===0)show("level");else $("#soon").classList.add("on")},1400); // หยุดรอ 0.4 วินาทีแล้วค่อยเข้า
+  setTimeout(()=>{traveling=false;if(i<2){stage=i?"ee":"aa";$("#level h1").textContent=STAGES[stage].title;drawLevels();show("level")}else $("#soon").classList.add("on")},1400); // หยุดรอ 0.4 วินาทีแล้วค่อยเข้า
 };
 (function(){let h="";for(let i=0;i<46;i++)h+=`<i style="left:${Math.random()*100}%;top:${Math.random()*100}%;animation-delay:${(Math.random()*2.4).toFixed(2)}s;transform:scale(${.6+Math.random()})"></i>`;$("#tw").innerHTML=h})();
 drawHome();
@@ -474,7 +593,7 @@ $("#hear").onclick=()=>{if(!cur||busy)return;
   armed=false;timerOn=false;gotSpeech=false;clearTimeout(tmo);try{rec&&rec.abort()}catch(e){}
   const bar=$("#timer div");bar.style.transition="none";bar.style.width="100%";
   $("#hear").disabled=true;$("#mic").disabled=true;$("#mic").classList.remove("ready","live");
-  $("#fb").style.color="";$("#fb").textContent=`ฟังนะ: “${cur[0][0]}อ – อา”`;
+  $("#fb").style.color="";$("#fb").textContent=`ฟังนะ: “${cur[0][0]}อ – ${STAGES[stage].vow}”`;
   speakSeq(hintParts(cur),hintDone)};
 $("#mic").onclick=()=>{if(busy||!SR)return;micDenied=false;$("#mic").classList.remove("ready");if(!armed)startTimer();listen(true)};
 
@@ -506,7 +625,7 @@ function nextWord(){
   if(!queue.length)refill();
   cur=queue.pop();lastWord=cur[0];bestAcc=0;busy=false;armed=false;timerOn=false;gotSpeech=false;
   $("#word").textContent=cur[0];$("#emoji").innerHTML=cur[1]?PIC[cur[1]]:"";$("#emoji").style.display=cur[1]?"":"none";
-  $("#fb").style.color="";$("#fb").textContent=`ฟังนะ: “${cur[0][0]}อ – อา”`;
+  $("#fb").style.color="";$("#fb").textContent=`ฟังนะ: “${cur[0][0]}อ – ${STAGES[stage].vow}”`;
   const bar=$("#timer div");bar.style.transition="none";bar.style.width="100%";
   clearTimeout(tmo);
   $("#mic").classList.remove("ready","live");$("#mic").disabled=true;$("#hear").disabled=true;
