@@ -27,7 +27,10 @@ button:focus-visible{outline:4px solid var(--gold);outline-offset:3px}
 .chars button:active{transform:translateY(4px);box-shadow:0 2px 0 #16206b}
 #hud{padding:10px 14px 4px;display:flex;gap:10px;align-items:flex-start}
 #hud .tip{flex:1;font-size:clamp(13px,3.6vw,18px);line-height:1.35;background:rgba(255,255,255,.1);border-radius:14px;padding:8px 12px}
-#score{background:var(--gold);color:#3a2a00;font-weight:700;border-radius:14px;padding:6px 12px;text-align:center;font-size:14px;min-width:62px}
+.bump{position:absolute;left:0;right:0;top:-6px;font-size:34px;font-weight:700;pointer-events:none;animation:bumpup 1s forwards;text-shadow:0 0 8px #fff,0 0 3px #fff}
+.bump.up{color:#0c8a3f}.bump.down{color:#d11f2a}
+@keyframes bumpup{from{transform:translateY(0);opacity:1}to{transform:translateY(-40px);opacity:0}}
+#score{position:relative;background:var(--gold);color:#3a2a00;font-weight:700;border-radius:14px;padding:6px 12px;text-align:center;font-size:14px;min-width:62px}
 #score b{display:block;font-size:26px;line-height:1}
 #arena{flex:1;position:relative;min-height:190px;margin:0 8px;border-radius:20px;background:#060822;overflow:hidden}
 #space{position:absolute;inset:0;width:100%;height:100%;z-index:0}
@@ -245,16 +248,34 @@ let testMode=false;
 const dbgLines=[];
 function dbg(m){if(!testMode)return;dbgLines.push(m);while(dbgLines.length>7)dbgLines.shift();$("#dbg").innerHTML=dbgLines.map(x=>`<div>${x.replace(/</g,"&lt;")}</div>`).join("")}
 function setTest(on){testMode=on;$("#dbg").style.display=on?"block":"none";$("#testmode").checked=on}
+// อัปเดตคะแนนทันทีที่ตัดสิน พร้อมตัวเลข +1 / −1 ลอยขึ้น (ไม่ต้องรอกระสุนยิงเสร็จ)
+function bump(d){
+  const s=$("#score");s.innerHTML=`คะแนน<b>${score}</b>`;
+  const p=document.createElement("div");p.className="bump "+(d>0?"up":"down");p.textContent=d>0?"+1":"−1";
+  s.appendChild(p);setTimeout(()=>p.remove(),1000);
+}
 function hintDone(){
   if(!playing||busy)return;
   $("#hear").disabled=false;$("#mic").disabled=false;
-  $("#fb").textContent=`พูดเลย! “${cur[0]}”`;
-  startTimer();
-  if(SR)listen(false);
+  // หน่วงสั้นๆ ก่อนเปิดไมค์ กันไมค์จับเสียงท้ายของเสียงอ่านโจทย์ ("อา") ที่เพิ่งจบ
+  const w=cur,id=hintId;
+  setTimeout(()=>{
+    if(!playing||busy||cur!==w||armed||id!==hintId)return;
+    $("#fb").textContent=`พูดเลย! “${cur[0]}”`;
+    startTimer();
+    if(SR)listen(false);
+  },550);
 }
 
 // ตัดวรรณยุกต์และช่องว่างก่อนเทียบเสียง
 const norm=s=>(s||"").replace(/[\s\u0e47-\u0e4e.,!?]/g,"").toLowerCase();
+// \u0e40\u0e17\u0e35\u0e22\u0e1a\u0e41\u0e1a\u0e1a\u0e22\u0e37\u0e14\u0e2b\u0e22\u0e38\u0e48\u0e19: \u0e15\u0e31\u0e14\u0e27\u0e23\u0e23\u0e13\u0e22\u0e38\u0e01\u0e15\u0e4c \u0e15\u0e31\u0e14 \u0e2b \u0e19\u0e33 (\u0e2b\u0e21\u0e32=\u0e21\u0e32) \u0e41\u0e25\u0e30\u0e23\u0e27\u0e21\u0e1e\u0e22\u0e31\u0e0d\u0e0a\u0e19\u0e30\u0e17\u0e35\u0e48\u0e2d\u0e2d\u0e01\u0e40\u0e2a\u0e35\u0e22\u0e07\u0e40\u0e2b\u0e21\u0e37\u0e2d\u0e19\u0e01\u0e31\u0e19 (\u0e04=\u0e02, \u0e1c=\u0e1e, \u0e17=\u0e16 \u0e2f\u0e25\u0e2f)
+const CMAP={"\u0e03":"\u0e02","\u0e04":"\u0e02","\u0e05":"\u0e02","\u0e06":"\u0e02","\u0e09":"\u0e0a","\u0e0c":"\u0e0a","\u0e16":"\u0e17","\u0e18":"\u0e17","\u0e11":"\u0e17","\u0e12":"\u0e17","\u0e1c":"\u0e1e","\u0e20":"\u0e1e","\u0e1d":"\u0e1f","\u0e0b":"\u0e2a","\u0e28":"\u0e2a","\u0e29":"\u0e2a","\u0e0e":"\u0e14","\u0e0f":"\u0e15","\u0e13":"\u0e19","\u0e2c":"\u0e25","\u0e0d":"\u0e22","\u0e2e":"\u0e2b"};
+const canon=s=>(s||"").toLowerCase().replace(/[\u0e47-\u0e4e.,!?]/g,"").split(/\s+/).filter(Boolean)
+  .map(w=>w.replace(/^\u0e2b(?=[\u0e01-\u0e2e])/,"").replace(/[\u0e01-\u0e2e]/g,c=>CMAP[c]||c)).join("");
+const matches=(heard,target)=>canon(heard).includes(canon(target));
+// \u0e04\u0e33\u0e17\u0e35\u0e48\u0e44\u0e21\u0e04\u0e4c\u0e44\u0e14\u0e49\u0e22\u0e34\u0e19\u0e40\u0e1b\u0e47\u0e19\u0e41\u0e04\u0e48\u0e40\u0e2a\u0e35\u0e22\u0e07\u0e2d\u0e48\u0e32\u0e19\u0e42\u0e08\u0e17\u0e22\u0e4c\u0e02\u0e2d\u0e07\u0e23\u0e30\u0e1a\u0e1a\u0e40\u0e2d\u0e07 (\u0e40\u0e0a\u0e48\u0e19 "\u0e2d\u0e32", "\u0e02\u0e2d") \u0e44\u0e21\u0e48\u0e19\u0e31\u0e1a\u0e40\u0e1b\u0e47\u0e19\u0e04\u0e33\u0e15\u0e2d\u0e1a
+const isEcho=(heard,target)=>{const n=canon(heard),c=target[0];return n===""||n==="\u0e2d\u0e32"||n==="\u0e2d"||n==="\u0e2d\u0e32\u0e2d\u0e32"||n===canon(c+"\u0e2d")||n===canon(c+"\u0e2d\u0e2d\u0e32")};
 
 let actx,master;
 function ac(){try{if(!actx){actx=new (window.AudioContext||window.webkitAudioContext)();const cp=actx.createDynamicsCompressor();master=actx.createGain();master.gain.value=.9;master.connect(cp);cp.connect(actx.destination)}if(actx.state==="suspended")actx.resume();return actx}catch(e){return null}}
@@ -331,7 +352,8 @@ function listen(manual){
     const R=e.results[e.results.length-1];
     if(!R.isFinal){dbg("กำลังฟัง: “"+R[0].transcript+"”");return}
     const alts=[...R].map(a=>a.transcript);
-    const ok=alts.some(t=>norm(t).includes(norm(cur[0])));
+    if(alts.every(t=>isEcho(t,cur[0]))){dbg("ข้าม (น่าจะเป็นเสียงของระบบเอง): “"+alts[0]+"”");return}
+    const ok=alts.some(t=>matches(t,cur[0]));
     if(testMode)dbg("ได้ยิน: "+[...R].map(a=>`“${a.transcript}” ${Math.round((a.confidence||0)*100)}%`).join(" | ")+" → "+(ok?"ตรง":"ไม่ตรง"));
     judge(ok,alts[0]);
   };
@@ -357,6 +379,7 @@ function judge(ok,heard,timeout){
   try{rec&&rec.abort()}catch(e){}
   $("#timer div").style.transition="none";
   score+=ok?1:-1;if(!ok)missed[cur[0]]=(missed[cur[0]]||0)+1;
+  bump(ok?1:-1);dbg((ok?"ถูก +1":"ผิด −1")+" → คะแนน "+score);
   const fb=$("#fb");
   fb.style.color=ok?"var(--ok)":"var(--bad)";
   fb.textContent=ok?"เก่งมาก! ยิงโดนแล้ว":(timeout?"ช้าไป โดนยิงแล้ว":"ลองใหม่นะ"+(heard?` (ได้ยินว่า “${heard}”)`:""));
