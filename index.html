@@ -54,12 +54,13 @@ button:focus-visible{outline:4px solid var(--gold);outline-offset:3px}
 #trail{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;overflow:visible}#trail path{fill:none;stroke:#ffe9a8;stroke-width:4;stroke-linecap:round;stroke-dasharray:2 12;animation:flow 1.4s linear infinite;opacity:.85}@keyframes flow{to{stroke-dashoffset:-14}}.node{z-index:1}.dots{align-self:center;display:flex;flex-direction:column;gap:3px;opacity:.7}
 .dots i{width:4px;height:4px;border-radius:50%;background:#ffe9a8}
 #soon{position:fixed;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px;background:#0b114aee;z-index:20;text-align:center;padding:24px}
-#soon.on{display:flex}#soon h2{margin:0;font-size:clamp(26px,7vw,36px)}
+#soon.on{display:flex}#soon h2{margin:0;line-height:1.4;font-size:clamp(26px,7vw,36px)}
 #soon button,.back{background:var(--gold);color:#3a2a00;font-weight:700;font-size:18px;padding:12px 24px;border-radius:16px;box-shadow:0 4px 0 #a07800}
 
 /* โหมดผู้ปกครอง */
 #pbtn{position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;gap:6px;background:#ffffff1c;border:2px solid #ffffff44;border-radius:999px;padding:8px 14px;font-size:14px;font-weight:700}
 #pbtn svg{width:16px;height:16px}
+#tohome{position:fixed;left:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));background:#ffffff1c;border:2px solid #ffffff44;border-radius:999px;padding:8px 14px;font-size:14px;font-weight:700;text-decoration:none;opacity:1}
 #gate,#parent{position:fixed;inset:0;display:none;z-index:30;background:#0b114af7;flex-direction:column;align-items:center;gap:12px;padding:calc(18px + env(safe-area-inset-top,0px)) 14px 18px;text-align:center;overflow:auto}
 #gate.on,#parent.on{display:flex}
 #gate{justify-content:center}
@@ -85,7 +86,7 @@ button:focus-visible{outline:4px solid var(--gold);outline-offset:3px}
 .pbtns button{padding:11px 20px;border-radius:14px;font-size:17px;font-weight:700;background:var(--gold);color:#3a2a00}
 .pbtns button.g{background:#ffffff22;color:#fff}
 
-#mascot{width:175px;height:175px;position:relative;margin-bottom:-4px}
+#mascot{width:clamp(84px,15vh,130px);height:clamp(84px,15vh,130px);position:relative;margin-bottom:-4px}
 #mascot .pad2{position:absolute;left:50%;bottom:2px;width:120px;height:22px;margin-left:-60px;border-radius:50%;background:radial-gradient(#7fe8ff,#2d7fe0 60%,transparent 72%);box-shadow:0 0 18px #5cc8ff88;animation:padp 1.1s ease-in-out infinite}
 #mascot svg{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible;transform-origin:50% 92%;animation:jig 1.1s ease-in-out infinite}
 @keyframes jig{0%{transform:translateY(0) scale(1.08,.9) rotate(0)}18%{transform:translateY(-22px) scale(.94,1.08) rotate(-6deg)}38%{transform:translateY(-4px) scale(1,1) rotate(5deg)}52%{transform:translateY(0) scale(1.1,.88) rotate(0)}70%{transform:translateY(-16px) scale(.96,1.06) rotate(6deg)}86%{transform:translateY(-2px) scale(1,1) rotate(-4deg)}100%{transform:translateY(0) scale(1.08,.9) rotate(0)}}
@@ -101,7 +102,7 @@ button:focus-visible{outline:4px solid var(--gold);outline-offset:3px}
 #pick{align-items:center;justify-content:center;gap:18px;padding:16px;text-align:center}
 #pick h1{margin:0;font-size:clamp(26px,7vw,40px)}
 #pick p{margin:0;opacity:.85}
-#level{align-items:center;justify-content:center;gap:16px;padding:16px;text-align:center}
+#level{align-items:center;justify-content:center;gap:clamp(8px,1.8vh,16px);padding:12px 16px 74px;text-align:center}
 #level h1{margin:0;font-size:clamp(26px,7vw,40px)}
 #level p{margin:0;opacity:.85}
 .levels{display:flex;flex-direction:column;gap:14px;width:min(420px,100%)}
@@ -238,7 +239,7 @@ button:focus-visible{outline:4px solid var(--gold);outline-offset:3px}
   <div class="pbtns"><button id="psave" type="button">บันทึก</button><button id="preset" class="g" type="button">คืนค่าเดิม</button><button id="pcancel" class="g" type="button">ยกเลิก</button></div>
 </div>
 
-<div id="soon"><h2>ตอนนี้ยังไม่พร้อม รอก่อนนะ</h2><button id="soonback" type="button">กลับหน้าแรก</button></div>
+<div id="soon"><h2>ด่านนี้ยังไม่พร้อม<br>รอก่อนนะ</h2><button id="soonback" type="button">กลับหน้าแรก</button></div>
 
 <section id="pick" class="screen">
   <h1>ศึกเสียงพิชิตมอนสเตอร์</h1>
