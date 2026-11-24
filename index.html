@@ -222,9 +222,9 @@ const CHARS=[["tiger","เสือโคร่ง"],["giraffe","ยีราฟ
 // คำทั้งหมด 27 คำ และระดับความยาก (ง่าย 5 คำ / ปานกลาง 10 คำ / ยาก สุ่ม 20 คำจาก 27 คำ)
 const ALL=["กา","ขา","คา","งา","จา","ฉา","ชา","ซา","ดา","ตา","ถา","ทา","นา","ปา","ผา","ฝา","พา","ฟา","มา","ยา","รา","ลา","วา","สา","หา","อา","ฮา"];
 const LEVELS={
-  easy:{n:"ง่าย",d:"5 คำ",w:"กา ขา ตา นา ยา",stars:1,c:"#2fbf71",words:["กา","ขา","ตา","นา","ยา"],pass:0.5},
-  mid:{n:"ปานกลาง",d:"10 คำ",w:"เพิ่ม งา จา ซา ลา ปา",stars:2,c:"#ff9a2e",words:["กา","ขา","ตา","นา","ยา","งา","จา","ซา","ลา","ปา"],pass:0.6},
-  hard:{n:"ยาก",d:"สุ่ม 20 คำ",w:"จากทั้งหมด 27 คำ",stars:3,c:"#ff5a5f",pick:20,pass:0.7}
+  easy:{n:"ง่าย",d:"5 คำ",w:"กา ขา ตา นา ยา",stars:1,c:"#2fbf71",words:["กา","ขา","ตา","นา","ยา"],pass:0.7},
+  mid:{n:"ปานกลาง",d:"10 คำ",w:"เพิ่ม งา จา ซา ลา ปา",stars:2,c:"#ff9a2e",words:["กา","ขา","ตา","นา","ยา","งา","จา","ซา","ลา","ปา"],pass:0.85},
+  hard:{n:"ยาก",d:"สุ่ม 20 คำ",w:"จากทั้งหมด 27 คำ",stars:3,c:"#ff5a5f",pick:20,pass:0.95}
 };
 // คำที่มีรูปประกอบ (คำอื่นไม่มีความหมายที่วาดง่าย จึงแสดงเฉพาะตัวอักษร)
 const PICKEY={"กา":"crow","ตา":"eye","ยา":"pill","ปา":"dart","ขา":"leg","นา":"field","มา":"come","หา":"search","ชา":"tea","ผา":"cliff","งา":"tusk","ลา":"donkey","ฝา":"lid","ทา":"brush","ฮา":"laugh"};
@@ -249,7 +249,7 @@ search:`<svg viewBox="0 0 100 100"><path d="M64 64L90 90" stroke="#7a4a1a" strok
 tea:`<svg viewBox="0 0 100 100"><path d="M34 26q-8-8 0-16M50 26q-8-8 0-16M66 26q-8-8 0-16" stroke="#9fb0ff" stroke-width="4" fill="none" ${S}/><path d="M72 46h8a12 12 0 0 1 0 24h-10" fill="none" stroke="#2b3a96" stroke-width="5" ${S}/><path d="M18 38H78V62Q78 84 48 84Q18 84 18 62Z" fill="#fff" stroke="#2b3a96" stroke-width="4" ${S}/><path d="M20 44H76" stroke="#c9742a" stroke-width="8"/><ellipse cx="48" cy="92" rx="38" ry="6" fill="#9fb0ff" stroke="#2b3a96" stroke-width="3"/><circle cx="36" cy="64" r="3" fill="#ff5a5f"/><circle cx="58" cy="64" r="3" fill="#ff5a5f"/></svg>`,
 cliff:`<svg viewBox="0 0 100 100"><rect x="4" y="4" width="92" height="92" rx="14" fill="#bfe8ff"/><circle cx="22" cy="24" r="10" fill="#ffd23f"/><path d="M4 88L38 28L56 52L68 36L96 88Z" fill="#8c8fa8" stroke="#464a6e" stroke-width="3" ${S}/><path d="M26 48L38 28L50 44L42 42L36 50Z" fill="#fff"/><path d="M60 46L68 36L78 52L70 48Z" fill="#fff"/><path d="M4 88H96V82A14 14 0 0 1 82 96H18A14 14 0 0 1 4 82Z" fill="#6fcf4a"/></svg>`
 };
-const MAXHP=10, TIME=10000, PASS=0.5; // เวลาพูด 10 วินาที / ผ่านเมื่อความมั่นใจของระบบ >= 40%
+let MAXHP=10; const TIME=10000, PASS=0.5; // เวลาพูด 10 วินาที / ผ่านเมื่อความมั่นใจของระบบ >= 40%
 // confidence = 0 หรือไม่มีค่า แปลว่าเบราว์เซอร์ไม่รายงาน (เช่นผลระหว่างฟังบน Chrome) ให้ถือว่าผ่านเกณฑ์
 const confOK=c=>!c||c>=LEVELS[level].pass;
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
@@ -398,7 +398,7 @@ function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.rando
 
 function start(){
   stopAll();
-  php=ehp=MAXHP;score=0;pool=buildPool();queue=[];lastWord=null;missed={};results=[];bestAcc=0;playing=true;
+  MAXHP=level==="easy"?5:10;php=ehp=MAXHP;score=0;pool=buildPool();queue=[];lastWord=null;missed={};results=[];bestAcc=0;playing=true;
   document.querySelectorAll(".ghost,.cheer,.boom").forEach(n=>n.remove());
   ac();
   
