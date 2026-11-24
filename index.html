@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ศึกเสียงพิชิตมอนสเตอร์</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mali:wght@600;700&display=swap">
+<style>
+:root{--bg:#1b2468;--bg2:#3a4aa8;--panel:#2b3a96;--glass:#8ee9ff;--gold:#ffd23f;--ok:#3ddc84;--bad:#ff5a5f;--text:#fff;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root{--bg:#1b2468;--bg2:#3a4aa8;--text:#fff}}
+:root[data-theme="dark"]{--bg:#1b2468}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{height:100%;margin:0;background:linear-gradient(#04061a,#0b1040 55%,#1a2166);color:var(--text);font-family:"Mali","Sarabun","Noto Sans Thai",system-ui,sans-serif;overflow:hidden}
+button{font-family:inherit;cursor:pointer;border:0;color:inherit}
+button:focus-visible{outline:4px solid var(--gold);outline-offset:3px}
+.screen{display:none;height:100%;flex-direction:column}
+.screen.on{display:flex}
+#pick{align-items:center;justify-content:center;gap:18px;padding:16px;text-align:center}
+#pick h1{margin:0;font-size:clamp(26px,7vw,40px)}
+#pick p{margin:0;opacity:.85}
+#tm{display:flex;align-items:center;gap:10px;font-size:14px;max-width:340px;text-align:left;opacity:.9}
+#tm input{width:22px;height:22px;flex:none;accent-color:var(--gold)}
+#dbg{display:none;position:absolute;left:6px;right:6px;top:6px;z-index:6;pointer-events:none;background:#000a;border-radius:10px;padding:6px 8px;font:12px/1.4 ui-monospace,monospace;color:#bff5c8;max-height:45%;overflow:hidden}
+.chars{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;width:min(420px,100%)}
+.chars button{background:var(--panel);border:4px solid var(--glass);border-radius:24px;padding:14px 6px;font-size:18px;font-weight:700;box-shadow:0 6px 0 #16206b}
+.chars button span{display:block;width:84px;height:84px;margin:0 auto 4px}
+.chars button:active{transform:translateY(4px);box-shadow:0 2px 0 #16206b}
+#hud{padding:10px 14px 4px;display:flex;gap:10px;align-items:flex-start}
+#hud .tip{flex:1;font-size:clamp(13px,3.6vw,18px);line-height:1.35;background:rgba(255,255,255,.1);border-radius:14px;padding:8px 12px}
+#score{background:var(--gold);color:#3a2a00;font-weight:700;border-radius:14px;padding:6px 12px;text-align:center;font-size:14px;min-width:62px}
+#score b{display:block;font-size:26px;line-height:1}
+#arena{flex:1;position:relative;min-height:190px;margin:0 8px;border-radius:20px;background:#060822;overflow:hidden}
+#space{position:absolute;inset:0;width:100%;height:100%;z-index:0}
+.tw{animation:tw 2.4s ease-in-out infinite alternate}
+.tw:nth-child(3n){animation-delay:-.8s}.tw:nth-child(3n+1){animation-delay:-1.6s}
+@keyframes tw{to{opacity:.15}}
+.fighter{position:absolute;bottom:12%;width:150px;display:flex;flex-direction:column;align-items:center;gap:6px;z-index:2}
+#me{left:5%}#mon{right:5%}
+.hp{display:flex;gap:2px;padding:3px;background:#0006;border-radius:8px;border:2px solid #fff6}
+.hp i{width:8px;height:14px;border-radius:2px;background:linear-gradient(var(--gold),#ff8a3d)}
+.hp i.off{background:#ffffff22}
+.tank{position:relative;width:150px;height:94px;margin-top:26px;filter:drop-shadow(0 6px 4px #0006)}
+.tank .who{position:absolute;left:52px;top:-22px;width:46px;height:46px;z-index:1;display:block}
+.tank .who svg.brows{position:absolute;inset:0}
+.tank .body{position:absolute;inset:0;z-index:2}
+.tank .body svg{display:block;width:100%;height:100%;overflow:visible}
+#mon .body svg{transform:scaleX(-1)}
+.fire .barrel{animation:recoil .28s}
+@keyframes recoil{30%{transform:translateX(-10px)}}
+.wrecked .tank{transform:rotate(5deg)}
+.wrecked .body{filter:grayscale(.85) brightness(.55)}
+.wrecked .tank::after{content:"";position:absolute;left:60px;top:6px;width:30px;height:30px;border-radius:50%;background:#777a;z-index:3;animation:smoke 1.4s infinite}
+@keyframes smoke{from{transform:translateY(0) scale(.6);opacity:.9}to{transform:translateY(-50px) scale(1.6);opacity:0}}
+.quake{animation:quake .35s}
+@keyframes quake{20%{transform:translate(-5px,3px)}40%{transform:translate(5px,-3px)}60%{transform:translate(-4px,-2px)}80%{transform:translate(3px,2px)}}
+.flash{position:absolute;width:44px;height:44px;z-index:4;pointer-events:none;animation:pop .18s forwards}
+.who svg,.boom svg,.ghost svg,.cheer svg,.chars svg{display:block;width:100%;height:100%}
+.hit .tank{animation:shake .4s}
+@keyframes shake{25%{transform:translateX(-10px)}75%{transform:translateX(10px)}}
+.boom{position:absolute;left:25px;top:-8px;width:100px;height:100px;z-index:4;animation:pop .5s forwards;pointer-events:none}
+@keyframes pop{from{transform:scale(.3);opacity:1}to{transform:scale(1.6);opacity:0}}
+.bullet{position:absolute;width:30px;height:12px;border-radius:6px 10px 10px 6px;background:linear-gradient(90deg,transparent,#ff7a1a 35%,#fff);box-shadow:0 0 14px #ff9a2e;z-index:3}
+.ghost{position:absolute;top:-34px;left:44px;width:62px;height:62px;z-index:5;animation:float 2.4s ease-out forwards}
+@keyframes float{from{transform:translateY(0);opacity:1}to{transform:translateY(-110px);opacity:0}}
+.cheer{position:absolute;top:-54px;left:27px;width:96px;height:56px;animation:bob .5s infinite alternate;z-index:0}
+@keyframes bob{to{transform:translateY(-10px)}}
+#card{margin:8px;padding:10px 12px 12px;background:var(--panel);border:4px solid var(--glass);border-radius:24px;text-align:center}
+#wordrow{display:flex;align-items:center;justify-content:center;gap:14px}
+#emoji{width:clamp(56px,16vw,84px);height:clamp(56px,16vw,84px);flex:none}
+#emoji svg,.big svg,#manual svg{display:block;width:100%;height:100%}
+.big svg{width:60%;height:60%;margin:auto}
+#manual svg{width:20px;height:20px;display:inline-block;vertical-align:-4px;margin-right:6px}
+#word{font-size:clamp(76px,24vw,130px);font-weight:700;line-height:1.15;color:var(--gold);text-shadow:0 4px 0 #16206b}
+#timer{height:10px;border-radius:6px;background:#0005;overflow:hidden;margin:4px 0 8px}
+#timer div{height:100%;width:100%;background:var(--ok)}
+#fb{min-height:28px;font-size:clamp(16px,4.5vw,22px);font-weight:700}
+.row{display:flex;gap:12px;justify-content:center;align-items:center;margin-top:4px}
+.big{border-radius:50%;width:78px;height:78px;font-size:36px;background:var(--bad);box-shadow:0 5px 0 #8a2226}
+.big.live,.big.ready{animation:pulse 1s infinite}
+.big:disabled{opacity:.4;cursor:default}
+.big.sm{width:56px;height:56px;font-size:26px;background:var(--bg2);box-shadow:0 4px 0 #16206b}
+@keyframes pulse{50%{transform:scale(1.1);box-shadow:0 0 0 12px #ff5a5f44}}
+#manual{display:none}
+#manual button{padding:10px 18px;border-radius:14px;font-size:16px;font-weight:700;background:var(--ok);color:#073}
+#manual button+button{background:var(--bad);color:#fff}
+#end{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:#0b114acc;z-index:10;text-align:center;padding:20px}
+#end.on{display:flex}
+#end{overflow:auto}
+#endsub{font-size:22px;font-weight:700;color:var(--gold)}
+#missed{width:min(420px,100%);max-height:38vh;overflow:auto;display:flex;flex-direction:column;gap:8px}
+#missed h3{margin:0;font-size:16px;font-weight:600;opacity:.9}
+#missed .list{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.chip{display:flex;align-items:center;gap:8px;background:var(--panel);border:3px solid var(--glass);border-radius:16px;padding:4px 6px 4px 14px}
+.chip b{font-size:34px;color:var(--gold);font-weight:700;line-height:1.2}
+.chip small{opacity:.8;font-size:14px}
+.chip button{width:44px;height:44px;border-radius:50%;background:var(--bg2);box-shadow:0 3px 0 #16206b;display:grid;place-items:center}
+.chip button svg{width:24px;height:24px}
+#fxa{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none}
+#end h2{margin:0;font-size:clamp(34px,10vw,56px)}
+#end .btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+#end .btns button{background:var(--gold);color:#3a2a00;font-weight:700;font-size:18px;padding:12px 20px;border-radius:16px}
+#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:9}
+@media (prefers-reduced-motion:reduce){.big.live,.big.ready,.cheer,.tw{animation:none}}
+</style>
+</head>
+<body>
+
+<section id="pick" class="screen on">
+  <h1>ศึกเสียงพิชิตมอนสเตอร์</h1>
+  <p>เลือกตัวละครของหนู</p>
+  <div class="chars" id="chars"></div>
+  <label id="tm"><input type="checkbox" id="testmode"> โหมดทดสอบ (ไม่จับเวลา ไม่เสียพลังชีวิต แสดงสิ่งที่ระบบได้ยิน)</label>
+</section>
+
+<section id="game" class="screen">
+  <div id="hud">
+    <div class="tip">เสียงของคุณสามารถช่วยกำจัดมอนสเตอร์ได้ ให้พูดออกเสียงตามคำที่แสดงบนหน้าจอ</div>
+    <div id="score">คะแนน<b>0</b></div>
+  </div>
+  <div id="arena">
+    <svg id="space" viewBox="90 0 220 200" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+      <defs>
+        <radialGradient id="neb1" cx="22%" cy="30%" r="60%"><stop offset="0" stop-color="#8a2be2" stop-opacity=".55"/><stop offset="1" stop-color="#8a2be2" stop-opacity="0"/></radialGradient>
+        <radialGradient id="neb2" cx="78%" cy="75%" r="55%"><stop offset="0" stop-color="#17b8d6" stop-opacity=".38"/><stop offset="1" stop-color="#17b8d6" stop-opacity="0"/></radialGradient>
+        <radialGradient id="pl" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#ffc98a"/><stop offset=".6" stop-color="#e8743b"/><stop offset="1" stop-color="#6e2418"/></radialGradient>
+        <radialGradient id="mn" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#eeeefc"/><stop offset="1" stop-color="#65658a"/></radialGradient>
+        <linearGradient id="gr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6e6ca6"/><stop offset="1" stop-color="#2f2e56"/></linearGradient>
+      </defs>
+      <rect width="400" height="200" fill="#060822"/>
+      <rect width="400" height="200" fill="url(#neb1)"/>
+      <rect width="400" height="200" fill="url(#neb2)"/>
+      <g id="stars"></g>
+      <g transform="translate(262 46) rotate(-16) scale(.8)">
+        <ellipse rx="48" ry="10" fill="none" stroke="#f3c88f" stroke-width="5" opacity=".5"/>
+        <circle r="26" fill="url(#pl)"/>
+        <path d="M-48 0A48 10 0 0 0 48 0" fill="none" stroke="#f3c88f" stroke-width="5" opacity=".9"/>
+      </g>
+      <g><circle cx="128" cy="38" r="13" fill="url(#mn)"/><circle cx="123" cy="34" r="3" fill="#55557a" opacity=".7"/><circle cx="133" cy="43" r="2.2" fill="#55557a" opacity=".7"/><circle cx="132" cy="31" r="1.6" fill="#55557a" opacity=".7"/></g>
+      <g fill="#4a4a6e"><ellipse cx="176" cy="26" rx="6" ry="3.5"/><ellipse cx="196" cy="62" rx="4" ry="2.6"/><ellipse cx="214" cy="20" rx="4" ry="2.4"/></g>
+      <path d="M0 150Q60 140 130 148T262 146T400 143V200H0Z" fill="url(#gr)"/>
+      <path d="M0 150Q60 140 130 148T262 146T400 143" fill="none" stroke="#9a97d6" stroke-width="2" opacity=".6"/>
+      <g fill="#2a294e" opacity=".75"><ellipse cx="62" cy="176" rx="24" ry="5"/><ellipse cx="200" cy="186" rx="30" ry="5.5"/><ellipse cx="338" cy="174" rx="22" ry="4.5"/><ellipse cx="130" cy="164" rx="10" ry="2.6"/><ellipse cx="274" cy="162" rx="12" ry="3"/></g>
+    </svg>
+    <canvas id="fxa"></canvas>
+    <div id="dbg"></div>
+    <div class="fighter" id="me"><div class="hp"></div><div class="tank"><span class="who"></span><span class="body"></span></div></div>
+    <div class="fighter" id="mon"><div class="hp"></div><div class="tank"><span class="who"></span><span class="body"></span></div></div>
+  </div>
+  <div id="card">
+    <div id="wordrow"><span id="emoji" role="img" aria-hidden="true"></span><span id="word"></span></div>
+    <div id="timer"><div></div></div>
+    <div id="fb">&nbsp;</div>
+    <div class="row">
+      <button class="big sm" id="hear" aria-label="ฟังเสียงตัวอย่าง"><svg viewBox="0 0 24 24" fill="#fff"><path d="M3 9v6h4l5 4V5L7 9z"/><path d="M15 8.5a5 5 0 010 7M17.5 6a8.5 8.5 0 010 12" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/></svg></button>
+      <button class="big" id="mic" aria-label="กดแล้วพูด"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><rect x="9" y="2.5" width="6" height="12" rx="3" fill="#fff"/><path d="M5.5 11.5a6.5 6.5 0 0013 0M12 18v3.5M8.5 21.5h7"/></svg></button>
+    </div>
+    <div class="row" id="manual"><button id="mok"><svg viewBox="0 0 24 24" fill="none" stroke="#073" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>พูดถูก</button><button id="mno"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round"><path d="M5 5l14 14M19 5L5 19"/></svg>ยังไม่ถูก</button></div>
+  </div>
+</section>
+
+<div id="end"><h2 id="endtitle"></h2><div id="endsub"></div><div id="missed"></div>
+  <div class="btns"><button id="again">เล่นอีกครั้ง</button><button id="back">เลือกตัวละคร</button></div>
+</div>
+<canvas id="fx"></canvas>
+
+<script>
+const $=s=>document.querySelector(s);
+// ดาวบนฉากอวกาศ (สุ่มแบบคงที่ ทุกครั้งที่เปิดเหมือนเดิม)
+(function(){let s=7;const r=()=>(s=(s*16807)%2147483647)/2147483647;let h="";
+  for(let i=0;i<70;i++){const x=(90+r()*220).toFixed(1),y=(r()*142).toFixed(1),rad=(.4+r()*1.1).toFixed(2),o=(.4+r()*.6).toFixed(2);
+    h+=`<circle cx="${x}" cy="${y}" r="${rad}" fill="#fff" opacity="${o}"${i%7===0?' class="tw"':''}/>`}
+  $("#stars").innerHTML=h})();
+// ตัวการ์ตูนวาดด้วย SVG (หน้าตรง ใช้ได้ทั้งฝั่งเราและฝั่งศัตรู)
+const S='stroke-linecap="round" stroke-linejoin="round"';
+const EYES=(y=50)=>`<circle cx="36" cy="${y}" r="6.5" fill="#fff" stroke="#222" stroke-width="1.5"/><circle cx="64" cy="${y}" r="6.5" fill="#fff" stroke="#222" stroke-width="1.5"/><circle cx="37.5" cy="${y+1}" r="3.6" fill="#222"/><circle cx="62.5" cy="${y+1}" r="3.6" fill="#222"/><circle cx="38.8" cy="${y-1}" r="1.2" fill="#fff"/><circle cx="63.8" cy="${y-1}" r="1.2" fill="#fff"/>`;
+const SMILE='<path d="M42 77q8 6 16 0" stroke="#3b1a00" stroke-width="2.5" fill="none" '+S+'/>';
+const ART={
+tiger:`<svg viewBox="0 0 100 100"><circle cx="22" cy="26" r="13" fill="#ff9a2e" stroke="#7a3b00" stroke-width="3"/><circle cx="22" cy="26" r="6" fill="#ffd1a0"/><circle cx="78" cy="26" r="13" fill="#ff9a2e" stroke="#7a3b00" stroke-width="3"/><circle cx="78" cy="26" r="6" fill="#ffd1a0"/><ellipse cx="50" cy="56" rx="39" ry="35" fill="#ff9a2e" stroke="#7a3b00" stroke-width="3"/><path d="M50 22v14M38 25l3 11M62 25l-3 11M12 50l13 3M12 62l12-1M88 50l-13 3M88 62l-12-1" stroke="#3b1a00" stroke-width="4" ${S}/><ellipse cx="50" cy="71" rx="19" ry="14" fill="#fff4e0"/>${EYES(50)}<path d="M44 63h12l-6 6z" fill="#ff6b8a" stroke="#7a2a40" stroke-width="1.5" ${S}/><path d="M50 69v4" stroke="#3b1a00" stroke-width="2.5" ${S}/>${SMILE}</svg>`,
+giraffe:`<svg viewBox="0 0 100 100"><path d="M36 28L33 8M64 28L67 8" stroke="#a8641a" stroke-width="5" ${S}/><circle cx="33" cy="7" r="5" fill="#7a3f0c"/><circle cx="67" cy="7" r="5" fill="#7a3f0c"/><ellipse cx="12" cy="40" rx="13" ry="7" transform="rotate(-25 12 40)" fill="#ffd54a" stroke="#a8641a" stroke-width="3"/><ellipse cx="88" cy="40" rx="13" ry="7" transform="rotate(25 88 40)" fill="#ffd54a" stroke="#a8641a" stroke-width="3"/><ellipse cx="50" cy="52" rx="32" ry="32" fill="#ffd54a" stroke="#a8641a" stroke-width="3"/><ellipse cx="50" cy="74" rx="24" ry="19" fill="#ffecb0" stroke="#a8641a" stroke-width="3"/><g fill="#b8721c"><ellipse cx="50" cy="28" rx="6" ry="5"/><ellipse cx="29" cy="40" rx="4.5" ry="4"/><ellipse cx="72" cy="38" rx="5" ry="4.5"/><ellipse cx="22" cy="58" rx="3.5" ry="3"/></g>${EYES(46)}<ellipse cx="42" cy="73" rx="2.8" ry="3.5" fill="#7a3f0c"/><ellipse cx="58" cy="73" rx="2.8" ry="3.5" fill="#7a3f0c"/><path d="M42 83q8 5 16 0" stroke="#7a3f0c" stroke-width="2.5" fill="none" ${S}/></svg>`,
+zebra:`<svg viewBox="0 0 100 100"><path d="M18 30L12 8L34 22Z" fill="#fff" stroke="#222" stroke-width="3" ${S}/><path d="M82 30L88 8L66 22Z" fill="#fff" stroke="#222" stroke-width="3" ${S}/><path d="M18 26L15 14L26 22Z" fill="#ff9fb4"/><path d="M82 26L85 14L74 22Z" fill="#ff9fb4"/><ellipse cx="50" cy="54" rx="31" ry="36" fill="#fff" stroke="#222" stroke-width="3"/><path d="M34 16Q50 4 66 16Q58 30 50 36Q42 30 34 16Z" fill="#222"/><path d="M22 44l12 4M22 57l10 2M78 44l-12 4M78 57l-10 2M44 20v12M56 20v12" stroke="#222" stroke-width="4.5" ${S}/><ellipse cx="50" cy="76" rx="21" ry="16" fill="#d9d2c8" stroke="#222" stroke-width="3"/>${EYES(50)}<ellipse cx="42" cy="75" rx="2.8" ry="3.5" fill="#222"/><ellipse cx="58" cy="75" rx="2.8" ry="3.5" fill="#222"/><path d="M43 84q7 4 14 0" stroke="#222" stroke-width="2.5" fill="none" ${S}/></svg>`,
+elephant:`<svg viewBox="0 0 100 100"><circle cx="17" cy="48" r="22" fill="#9fb4d6" stroke="#44567a" stroke-width="3"/><circle cx="17" cy="48" r="13" fill="#f4a9bd"/><circle cx="83" cy="48" r="22" fill="#9fb4d6" stroke="#44567a" stroke-width="3"/><circle cx="83" cy="48" r="13" fill="#f4a9bd"/><ellipse cx="50" cy="46" rx="30" ry="33" fill="#b7c8e6" stroke="#44567a" stroke-width="3"/><path d="M50 60V80Q50 94 63 92" stroke="#44567a" stroke-width="20" fill="none" ${S}/><path d="M50 60V80Q50 94 63 92" stroke="#b7c8e6" stroke-width="14" fill="none" ${S}/><path d="M50 66v18M50 72h0" stroke="#8ea3c8" stroke-width="2" ${S}/>${EYES(38)}<path d="M33 30q4-4 8 0M59 30q4-4 8 0" stroke="#44567a" stroke-width="2.5" fill="none" ${S}/></svg>`,
+monster:`<svg viewBox="0 0 100 100"><path d="M24 30L18 8L38 22Z" fill="#fff4b0" stroke="#3a1a5c" stroke-width="3" ${S}/><path d="M76 30L82 8L62 22Z" fill="#fff4b0" stroke="#3a1a5c" stroke-width="3" ${S}/><path d="M14 62Q10 22 50 20Q90 22 86 62Q84 92 50 92Q16 92 14 62Z" fill="#7be05a" stroke="#3a1a5c" stroke-width="3"/><circle cx="35" cy="45" r="11" fill="#fff" stroke="#3a1a5c" stroke-width="2.5"/><circle cx="65" cy="45" r="11" fill="#fff" stroke="#3a1a5c" stroke-width="2.5"/><circle cx="37" cy="47" r="5.5" fill="#c0102a"/><circle cx="63" cy="47" r="5.5" fill="#c0102a"/><path d="M24 34l20 6M76 34l-20 6" stroke="#3a1a5c" stroke-width="4" ${S}/><path d="M30 68Q50 62 70 68Q68 86 50 86Q32 86 30 68Z" fill="#3a1a5c"/><path d="M36 67l3 8l4-7M50 66l3 9l4-8M60 67l2 7" fill="#fff" stroke="#fff" stroke-width="1" ${S}/></svg>`,
+ghost:`<svg viewBox="0 0 100 100"><path d="M18 90V46Q18 10 50 10Q82 10 82 46V90L70 80L58 92L46 80L34 92L26 80Z" fill="#f3f6ff" stroke="#8da0d8" stroke-width="3" ${S}/><ellipse cx="38" cy="44" rx="6" ry="9" fill="#2a3470"/><ellipse cx="62" cy="44" rx="6" ry="9" fill="#2a3470"/><ellipse cx="50" cy="66" rx="7" ry="9" fill="#2a3470"/></svg>`,
+boom:`<svg viewBox="0 0 100 100"><path d="M50 2L60 28L86 14L74 40L98 50L74 60L86 86L60 72L50 98L40 72L14 86L26 60L2 50L26 40L14 14L40 28Z" fill="#ffd23f" stroke="#ff7a1a" stroke-width="4" ${S}/><circle cx="50" cy="50" r="16" fill="#fff"/></svg>`,
+cheer:`<svg viewBox="0 0 100 56"><path d="M22 56L10 14M78 56L90 14" stroke="#fff" stroke-width="9" ${S}/><path d="M22 56L10 14M78 56L90 14" stroke="#ffd1a0" stroke-width="5" ${S}/><circle cx="9" cy="10" r="8" fill="#ffd1a0" stroke="#fff" stroke-width="2.5"/><circle cx="91" cy="10" r="8" fill="#ffd1a0" stroke="#fff" stroke-width="2.5"/></svg>`
+};
+const EYEY={tiger:50,giraffe:46,zebra:50,elephant:38};
+const BROWS=k=>{const y=EYEY[k];return `<svg class="brows" viewBox="0 0 100 100"><path d="M23 ${y-14}L45 ${y-6}M77 ${y-14}L55 ${y-6}" stroke="#1a1208" stroke-width="6" fill="none" ${S}/></svg>`};
+// รถถังหันขวา (ฝั่งศัตรูจะพลิกด้วย CSS) a=ตัวถัง b=ป้อมปืน c=หนามเกราะ
+const TANK=(a,b,c)=>`<svg viewBox="0 0 160 100"><g class="barrel"><rect x="96" y="34" width="56" height="9" rx="2" fill="#2d3320" stroke="#111" stroke-width="2"/><rect x="147" y="29" width="12" height="19" rx="3" fill="#3a4128" stroke="#111" stroke-width="2"/></g><path d="M14 68L30 52H132L148 68Z" fill="${a}" stroke="#111" stroke-width="3" ${S}/><path d="M30 52L34 40L38 52Z M20 56L24 44L28 56Z" fill="${c}" stroke="#111" stroke-width="2" ${S}/><rect x="101" y="55" width="32" height="9" rx="2" fill="#150808"/><path d="M102 56L105 63L108 56L111 63L114 56L117 63L120 56L123 63L126 56L129 63L132 56Z" fill="#fff"/><path d="M40 54L44 34Q48 22 64 22H96Q112 24 114 38L118 54Z" fill="${b}" stroke="#111" stroke-width="3" ${S}/><ellipse cx="78" cy="24" rx="24" ry="5" fill="#1d2314" stroke="#111" stroke-width="2"/><rect x="8" y="64" width="144" height="28" rx="14" fill="#262a1c" stroke="#111" stroke-width="3"/><path d="M22 67H138M22 89H138" stroke="#59603f" stroke-width="2" stroke-dasharray="4 4"/><g fill="#4b5238" stroke="#111" stroke-width="2"><circle cx="26" cy="78" r="8"/><circle cx="52" cy="78" r="8"/><circle cx="78" cy="78" r="8"/><circle cx="104" cy="78" r="8"/><circle cx="130" cy="78" r="8"/></g><g fill="#111"><circle cx="26" cy="78" r="3"/><circle cx="52" cy="78" r="3"/><circle cx="78" cy="78" r="3"/><circle cx="104" cy="78" r="3"/><circle cx="130" cy="78" r="3"/></g></svg>`;
+const TANK_ME=TANK("#5c7a2e","#6b8c36","#d6dcae"),TANK_EN=TANK("#7a1f4a","#962a5e","#ffd23f");
+const CHARS=[["tiger","เสือโคร่ง"],["giraffe","ยีราฟ"],["zebra","ม้าลาย"],["elephant","ช้าง"]];
+const WORDS=[["กา","crow"],["ตา","eye"],["ยา","pill"],["ปา","dart"],["ขา","leg"],["นา","field"],["มา","come"],["หา","search"],["ชา","tea"],["ผา","cliff"]];
+const PIC={
+crow:`<svg viewBox="0 0 100 100"><path d="M40 78v14M58 78v14M33 92h13M52 92h13" stroke="#f59a1f" stroke-width="4" ${S}/><path d="M24 52L3 38L8 62L26 68Z" fill="#2b2b3a"/><ellipse cx="50" cy="58" rx="28" ry="22" fill="#2b2b3a"/><circle cx="68" cy="34" r="16" fill="#2b2b3a"/><path d="M80 29L99 37L80 43Z" fill="#ffb02e" stroke="#b36a00" stroke-width="2" ${S}/><circle cx="71" cy="30" r="5" fill="#fff"/><circle cx="72.5" cy="30.5" r="2.3" fill="#111"/><path d="M38 56Q50 76 68 58Q56 50 38 56Z" fill="#4a5070"/></svg>`,
+eye:`<svg viewBox="0 0 100 100"><path d="M5 52Q50 8 95 52Q50 94 5 52Z" fill="#fff" stroke="#2b3a96" stroke-width="4" ${S}/><circle cx="50" cy="51" r="21" fill="#4a90e2" stroke="#2b3a96" stroke-width="3"/><circle cx="50" cy="51" r="9.5" fill="#111"/><circle cx="57" cy="43" r="4.5" fill="#fff"/><path d="M20 30l-7-10M50 17V4M80 30l7-10" stroke="#2b3a96" stroke-width="4" ${S}/></svg>`,
+pill:`<svg viewBox="0 0 100 100"><g transform="rotate(-35 50 50)"><path d="M50 30H28A20 20 0 0 0 28 70H50Z" fill="#ff5a5f"/><path d="M50 30H72A20 20 0 0 1 72 70H50Z" fill="#fff"/><rect x="8" y="30" width="84" height="40" rx="20" fill="none" stroke="#2b3a96" stroke-width="4"/><path d="M50 30V70" stroke="#2b3a96" stroke-width="4"/><path d="M20 40q4-4 10-4" stroke="#fff" stroke-width="4" fill="none" ${S}/></g></svg>`,
+dart:`<svg viewBox="0 0 100 100"><circle cx="46" cy="56" r="38" fill="#ff5a5f" stroke="#2b3a96" stroke-width="3"/><circle cx="46" cy="56" r="28" fill="#fff"/><circle cx="46" cy="56" r="18" fill="#ff5a5f"/><circle cx="46" cy="56" r="8" fill="#fff"/><path d="M46 56L88 14" stroke="#7a4a1a" stroke-width="5" ${S}/><path d="M80 22L96 6M80 22L94 24M80 22L78 8" stroke="#3ddc84" stroke-width="5" ${S}/></svg>`,
+leg:`<svg viewBox="0 0 100 100"><rect x="36" y="4" width="26" height="70" rx="12" fill="#ffd1a0" stroke="#a8641a" stroke-width="4"/><path d="M36 22h26" stroke="#ffe8cc" stroke-width="0"/><rect x="34" y="58" width="30" height="14" fill="#fff" stroke="#2b3a96" stroke-width="3"/><path d="M33 72H64V82Q90 82 92 94H31Q29 82 33 72Z" fill="#e0463c" stroke="#7a1f1a" stroke-width="4" ${S}/><path d="M33 94H92" stroke="#fff" stroke-width="3"/></svg>`,
+field:`<svg viewBox="0 0 100 100"><rect x="4" y="4" width="92" height="92" rx="14" fill="#bfe8ff"/><circle cx="74" cy="26" r="12" fill="#ffd23f"/><path d="M4 54Q50 42 96 54V82A14 14 0 0 1 82 96H18A14 14 0 0 1 4 82Z" fill="#9be05a"/><path d="M4 72Q50 60 96 72" stroke="#5fae2e" stroke-width="4" fill="none"/><g stroke="#2f7a1e" stroke-width="3.5" ${S}><path d="M22 86V68M22 76l-6-6M22 76l6-6M50 88V70M50 78l-6-6M50 78l6-6M78 86V68M78 76l-6-6M78 76l6-6"/></g></svg>`,
+come:`<svg viewBox="0 0 100 100"><path d="M26 98V70Q26 58 50 58Q74 58 74 70V98Z" fill="#3b82f6" stroke="#1d4ed8" stroke-width="3"/><path d="M74 66L92 38" stroke="#ffd1a0" stroke-width="9" ${S}/><circle cx="93" cy="34" r="8" fill="#ffd1a0" stroke="#a8641a" stroke-width="2"/><path d="M26 68L12 86" stroke="#ffd1a0" stroke-width="9" ${S}/><circle cx="50" cy="34" r="22" fill="#ffd1a0" stroke="#a8641a" stroke-width="3"/><path d="M28 32Q30 10 50 10Q70 10 72 32Q62 20 50 22Q38 20 28 32Z" fill="#3a2410"/><circle cx="42" cy="36" r="3.2" fill="#222"/><circle cx="58" cy="36" r="3.2" fill="#222"/><path d="M42 45q8 7 16 0" stroke="#a8341a" stroke-width="3" fill="none" ${S}/></svg>`,
+search:`<svg viewBox="0 0 100 100"><path d="M64 64L90 90" stroke="#7a4a1a" stroke-width="12" ${S}/><circle cx="42" cy="42" r="30" fill="#d6f3ff" stroke="#2b3a96" stroke-width="7"/><path d="M26 36Q30 24 42 21" stroke="#fff" stroke-width="5" fill="none" ${S}/></svg>`,
+tea:`<svg viewBox="0 0 100 100"><path d="M34 26q-8-8 0-16M50 26q-8-8 0-16M66 26q-8-8 0-16" stroke="#9fb0ff" stroke-width="4" fill="none" ${S}/><path d="M72 46h8a12 12 0 0 1 0 24h-10" fill="none" stroke="#2b3a96" stroke-width="5" ${S}/><path d="M18 38H78V62Q78 84 48 84Q18 84 18 62Z" fill="#fff" stroke="#2b3a96" stroke-width="4" ${S}/><path d="M20 44H76" stroke="#c9742a" stroke-width="8"/><ellipse cx="48" cy="92" rx="38" ry="6" fill="#9fb0ff" stroke="#2b3a96" stroke-width="3"/><circle cx="36" cy="64" r="3" fill="#ff5a5f"/><circle cx="58" cy="64" r="3" fill="#ff5a5f"/></svg>`,
+cliff:`<svg viewBox="0 0 100 100"><rect x="4" y="4" width="92" height="92" rx="14" fill="#bfe8ff"/><circle cx="22" cy="24" r="10" fill="#ffd23f"/><path d="M4 88L38 28L56 52L68 36L96 88Z" fill="#8c8fa8" stroke="#464a6e" stroke-width="3" ${S}/><path d="M26 48L38 28L50 44L42 42L36 50Z" fill="#fff"/><path d="M60 46L68 36L78 52L70 48Z" fill="#fff"/><path d="M4 88H96V82A14 14 0 0 1 82 96H18A14 14 0 0 1 4 82Z" fill="#6fcf4a"/></svg>`
+};
+const MAXHP=10, TIME=5000;
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+let ch=0,php,ehp,score,queue=[],cur,busy=true,playing=false,rec=null,tmo=null,micDenied=false,fxOn=false,fxArena=false,armed=false,hintId=0,missed={};
+// เลือกเสียงไทยที่ฟังเป็นธรรมชาติที่สุดเท่าที่เครื่องมี
+function thaiVoice(){try{const vs=speechSynthesis.getVoices().filter(v=>/^th/i.test(v.lang));if(!vs.length)return null;return vs.find(v=>/premium|enhanced|natural|narisa|kanya|google/i.test(v.name))||vs[0]}catch(e){return null}}
+try{speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>{}}catch(e){}
+// อ่านโจทย์ออกเสียง เช่น "กอ" แล้ว "อา" (เวลายังไม่เดินระหว่างนี้)
+function speakSeq(parts,done){
+  const id=++hintId;let finished=false;
+  const fin=()=>{if(finished||id!==hintId)return;finished=true;done()};
+  try{
+    if(speechSynthesis.speaking||speechSynthesis.pending)speechSynthesis.cancel();
+    let i=0,started=false;
+    const noVoice=()=>{if(started||finished||id!==hintId)return;$("#fb").textContent="ไม่ได้ยินเสียง? เช็กเสียงเครื่อง/โหมดเงียบ (ดูคำอ่านบนจอได้)";setTimeout(fin,2500)};
+    const next=()=>{
+      if(id!==hintId||finished)return;
+      if(i>=parts.length){setTimeout(fin,80);return}
+      const first=i===0;
+      const u=new SpeechSynthesisUtterance(parts[i++]);u.lang="th-TH";u.rate=.92;u.pitch=1.12;const v=thaiVoice();if(v)u.voice=v;
+      if(first){u.onstart=()=>{started=true};setTimeout(noVoice,2000)}
+      u.onend=()=>setTimeout(next,160);u.onerror=()=>setTimeout(next,80);
+      speechSynthesis.speak(u);
+    };
+    next();
+    setTimeout(fin,4500);
+  }catch(e){fin()}
+}
+const hintParts=w=>[w[0][0]+"อ","อา"];
+function stopSpeech(){hintId++;try{speechSynthesis.cancel()}catch(e){}}
+function startTimer(){
+  armed=true;
+  const bar=$("#timer div");bar.style.transition="none";bar.style.width="100%";bar.offsetWidth;
+  clearTimeout(tmo);
+  if(testMode)return; // โหมดทดสอบ: ไม่จับเวลา พูดได้นานเท่าที่ต้องการ
+  bar.style.transition=`width ${TIME}ms linear`;bar.style.width="0%";
+  tmo=setTimeout(()=>judge(false,"",true),TIME);
+}
+// โหมดทดสอบ: แสดงสิ่งที่ระบบได้ยินแบบสด
+let testMode=false;
+const dbgLines=[];
+function dbg(m){if(!testMode)return;dbgLines.push(m);while(dbgLines.length>7)dbgLines.shift();$("#dbg").innerHTML=dbgLines.map(x=>`<div>${x.replace(/</g,"&lt;")}</div>`).join("")}
+function setTest(on){testMode=on;$("#dbg").style.display=on?"block":"none";$("#testmode").checked=on}
+function hintDone(){
+  if(!playing||busy)return;
+  $("#hear").disabled=false;$("#mic").disabled=false;
+  $("#fb").textContent=`พูดเลย! “${cur[0]}”`;
+  startTimer();
+  if(SR)listen(false);
+}
+
+// ตัดวรรณยุกต์และช่องว่างก่อนเทียบเสียง
+const norm=s=>(s||"").replace(/[\s\u0e47-\u0e4e.,!?]/g,"").toLowerCase();
+
+let actx,master;
+function ac(){try{if(!actx){actx=new (window.AudioContext||window.webkitAudioContext)();const cp=actx.createDynamicsCompressor();master=actx.createGain();master.gain.value=.9;master.connect(cp);cp.connect(actx.destination)}if(actx.state==="suspended")actx.resume();return actx}catch(e){return null}}
+function noiseBuf(c,d){const b=c.createBuffer(1,Math.floor(c.sampleRate*d),c.sampleRate),a=b.getChannelData(0);for(let i=0;i<a.length;i++)a[i]=Math.random()*2-1;return b}
+function tone(f,d,t="sine"){const c=ac();if(!c)return;try{const o=c.createOscillator(),g=c.createGain();o.type=t;o.frequency.value=f;g.gain.value=.15;o.connect(g);g.connect(master);o.start();g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d);o.stop(c.currentTime+d)}catch(e){}}
+// เสียงปืนใหญ่ ตู้มมม: เสียงทุ้มตกลง + เสียงลมก้องในลำคอ + เสียงแตกตอนยิง
+function boom(big=1){const c=ac();if(!c)return;try{const t=c.currentTime;
+  const o=c.createOscillator(),og=c.createGain();o.type="sine";o.frequency.setValueAtTime(big>.8?150:190,t);o.frequency.exponentialRampToValueAtTime(30,t+.6);og.gain.setValueAtTime(1.1*big,t);og.gain.exponentialRampToValueAtTime(.001,t+.8);o.connect(og);og.connect(master);o.start(t);o.stop(t+.85);
+  const n=c.createBufferSource();n.buffer=noiseBuf(c,1.3);const f=c.createBiquadFilter();f.type="lowpass";f.frequency.setValueAtTime(2400,t);f.frequency.exponentialRampToValueAtTime(60,t+1);const ng=c.createGain();ng.gain.setValueAtTime(.9*big,t);ng.gain.exponentialRampToValueAtTime(.001,t+1.2);n.connect(f);f.connect(ng);ng.connect(master);n.start(t);n.stop(t+1.3);
+  const k=c.createBufferSource();k.buffer=noiseBuf(c,.1);const kg=c.createGain();kg.gain.setValueAtTime(.8*big,t);kg.gain.exponentialRampToValueAtTime(.001,t+.08);k.connect(kg);kg.connect(master);k.start(t);k.stop(t+.1);
+}catch(e){}}
+
+$("#chars").innerHTML=CHARS.map((c,i)=>`<button data-i="${i}"><span>${ART[c[0]]}</span>${c[1]}</button>`).join("");
+$("#chars").onclick=e=>{const b=e.target.closest("button");if(b){ch=+b.dataset.i;start()}};
+$("#back").onclick=()=>{stopAll();$("#end").classList.remove("on");fxOn=false;show("pick")};
+$("#again").onclick=()=>{$("#end").classList.remove("on");fxOn=false;start()};
+if(location.hash==="#test")$("#testmode").checked=true; // เปิดลิงก์ต่อท้าย #test เพื่อเปิดโหมดทดสอบอัตโนมัติ
+$("#hear").onclick=()=>{if(!cur||busy)return;
+  // ฟังซ้ำ: หยุดนับเวลา อ่านใหม่ แล้วเริ่มนับเมื่ออ่านจบ
+  armed=false;clearTimeout(tmo);try{rec&&rec.abort()}catch(e){}
+  const bar=$("#timer div");bar.style.transition="none";bar.style.width="100%";
+  $("#hear").disabled=true;$("#mic").disabled=true;$("#mic").classList.remove("ready","live");
+  $("#fb").style.color="";$("#fb").textContent=`ฟังนะ: “${cur[0][0]}อ – อา”`;
+  speakSeq(hintParts(cur),hintDone)};
+$("#mic").onclick=()=>{if(busy||!SR)return;micDenied=false;$("#mic").classList.remove("ready");if(!armed)startTimer();listen(true)};
+$("#mok").onclick=()=>{if(!busy)judge(true,"")};
+$("#mno").onclick=()=>{if(!busy)judge(false,"")};
+
+function show(id){document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("on",s.id===id))}
+function hpHTML(n){return Array.from({length:MAXHP},(_,i)=>`<i class="${i<n?"":"off"}"></i>`).join("")}
+function render(){
+  $("#me .hp").innerHTML=hpHTML(php);$("#mon .hp").innerHTML=hpHTML(ehp);
+  $("#score").innerHTML=`คะแนน<b>${score}</b>`;
+}
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a}
+
+function start(){
+  stopAll();
+  php=ehp=MAXHP;score=0;queue=[];missed={};playing=true;
+  document.querySelectorAll(".ghost,.cheer,.boom").forEach(n=>n.remove());
+  ac();
+  setTest($("#testmode").checked);dbgLines.length=0;
+  if(testMode){let nv=0;try{nv=speechSynthesis.getVoices().filter(v=>/^th/i.test(v.lang)).length}catch(e){}
+    dbg("โหมดทดสอบ | รองรับฟังเสียง: "+(SR?"ใช่":"ไม่"));dbg("เสียงอ่านภาษาไทยในเครื่อง: "+nv+" เสียง")}
+  $("#me").classList.remove("wrecked");$("#mon").classList.remove("wrecked");
+  $("#me .who").innerHTML=ART[CHARS[ch][0]]+BROWS(CHARS[ch][0]);$("#me .who").style.visibility="visible";
+  $("#mon .who").innerHTML=ART.monster;$("#mon .who").style.visibility="visible";
+  $("#me .body").innerHTML=TANK_ME;$("#mon .body").innerHTML=TANK_EN;
+  $("#manual").style.display=SR?"none":"flex";$("#mic").style.display=SR?"":"none";
+  show("game");render();nextWord(); // เรียกทันทีในจังหวะที่ผู้เล่นกด เพื่อให้เบราว์เซอร์ยอมเล่นเสียงพูด
+}
+function stopAll(){playing=false;armed=false;fxArena=false;fxOn=false;stopSpeech();clearTimeout(tmo);try{rec&&rec.abort()}catch(e){}rec=null;$("#mic").classList.remove("live")}
+
+function nextWord(){
+  if(!playing)return;
+  if(!queue.length)queue=shuffle(WORDS);
+  cur=queue.pop();busy=false;armed=false;
+  $("#word").textContent=cur[0];$("#emoji").innerHTML=PIC[cur[1]];
+  $("#fb").style.color="";$("#fb").textContent=`ฟังนะ: “${cur[0][0]}อ – อา”`;
+  const bar=$("#timer div");bar.style.transition="none";bar.style.width="100%";
+  clearTimeout(tmo);
+  $("#mic").classList.remove("ready","live");$("#mic").disabled=true;$("#hear").disabled=true;
+  speakSeq(hintParts(cur),hintDone);
+}
+
+function listen(manual){
+  if(!SR||busy||!playing||(micDenied&&!manual))return;
+  try{rec&&rec.abort()}catch(e){}
+  rec=new SR();rec.lang="th-TH";rec.maxAlternatives=5;rec.interimResults=testMode;
+  const mine=rec;
+  rec.onstart=()=>{$("#mic").classList.add("live");dbg("เริ่มฟัง (เป้าหมาย: "+cur[0]+")")};
+  rec.onresult=e=>{
+    if(busy||mine!==rec)return;
+    const R=e.results[e.results.length-1];
+    if(!R.isFinal){dbg("กำลังฟัง: “"+R[0].transcript+"”");return}
+    const alts=[...R].map(a=>a.transcript);
+    const ok=alts.some(t=>norm(t).includes(norm(cur[0])));
+    if(testMode)dbg("ได้ยิน: "+[...R].map(a=>`“${a.transcript}” ${Math.round((a.confidence||0)*100)}%`).join(" | ")+" → "+(ok?"ตรง":"ไม่ตรง"));
+    judge(ok,alts[0]);
+  };
+  rec.onerror=e=>{
+    dbg("error: "+e.error);
+    if(e.error!=="no-speech"&&e.error!=="aborted"){
+      // ใช้ไมค์ไม่ได้: ไม่หยุดนับเวลา แต่เปิดปุ่มให้ผู้ปกครองตัดสินแทน
+      micDenied=true;$("#manual").style.display="flex";
+      if(!busy)$("#fb").textContent="ใช้ไมค์ไม่ได้ ให้ผู้ปกครองกดถูก/ผิดแทน";
+    }
+  };
+  rec.onend=()=>{
+    $("#mic").classList.remove("live");dbg("หยุดฟัง");
+    if(playing&&!busy&&armed&&mine===rec&&!micDenied)setTimeout(()=>listen(false),300);
+  };
+  try{rec.start()}catch(e){}
+}
+
+function judge(ok,heard,timeout){
+  if(busy||!playing)return;
+  busy=true;armed=false;clearTimeout(tmo);stopSpeech();
+  $("#mic").classList.remove("ready");$("#mic").disabled=true;$("#hear").disabled=true;
+  try{rec&&rec.abort()}catch(e){}
+  $("#timer div").style.transition="none";
+  score+=ok?1:-1;if(!ok)missed[cur[0]]=(missed[cur[0]]||0)+1;
+  const fb=$("#fb");
+  fb.style.color=ok?"var(--ok)":"var(--bad)";
+  fb.textContent=ok?"เก่งมาก! ยิงโดนแล้ว":(timeout?"ช้าไป โดนยิงแล้ว":"ลองใหม่นะ"+(heard?` (ได้ยินว่า “${heard}”)`:""));
+  setTimeout(()=>tone(ok?880:200,.25,ok?"triangle":"sawtooth"),480);
+  if(!testMode){if(ok)ehp--;else php--}
+  shoot(ok?$("#me"):$("#mon"),ok?$("#mon"):$("#me"),()=>{
+    render();
+    if(ehp<=0)return finish(true);
+    if(php<=0)return finish(false);
+    setTimeout(nextWord,900);
+  });
+}
+
+function shoot(from,to,done){
+  const ar=$("#arena"),a=ar.getBoundingClientRect(),f=from.querySelector(".tank").getBoundingClientRect(),t=to.querySelector(".tank").getBoundingClientRect();
+  const dir=t.left>f.left?1:-1;
+  const mx=f.left+f.width*(dir>0?.99:.01)-a.left,my=f.top-a.top+f.height*.385,tx=t.left+t.width/2-a.left-dir*10;
+  from.classList.add("fire");setTimeout(()=>from.classList.remove("fire"),300);
+  boom(1);
+  const fl=document.createElement("div");fl.className="flash";fl.innerHTML=ART.boom;fl.style.left=(mx-22)+"px";fl.style.top=(my-22)+"px";ar.appendChild(fl);setTimeout(()=>fl.remove(),200);
+  const b=document.createElement("div");b.className="bullet";ar.appendChild(b);
+  b.style.top=(my-6)+"px";b.style.left="0";
+  const x1=mx-(dir>0?0:30),x2=tx-(dir>0?30:0);
+  const an=b.animate([{transform:`translateX(${x1}px) scaleX(${dir})`},{transform:`translateX(${x2}px) scaleX(${dir})`}],{duration:380,easing:"ease-in",fill:"forwards"});
+  an.onfinish=()=>{b.remove();boom(.6);
+    ar.classList.add("quake");setTimeout(()=>ar.classList.remove("quake"),350);
+    to.classList.add("hit");const bm=document.createElement("div");bm.className="boom";bm.innerHTML=ART.boom;to.querySelector(".tank").appendChild(bm);
+    setTimeout(()=>{to.classList.remove("hit");bm.remove();done()},450)};
+}
+
+function finish(win){
+  playing=false;armed=false;clearTimeout(tmo);stopSpeech();
+  const loser=win?$("#mon"):$("#me"),winner=win?$("#me"):$("#mon");
+  loser.querySelector(".who").style.visibility="hidden";
+  const g=document.createElement("div");g.className="ghost";g.innerHTML=ART.ghost;loser.querySelector(".tank").appendChild(g);loser.classList.add("wrecked");
+  if(win){ // ตัวละครยิ้มกว้าง ตาหยี แก้มแดง และมีพลุยิงอยู่ฉากหลัง
+    const k=CHARS[ch][0];$("#me .who").innerHTML=ART[k]+HAPPY(k);
+    fxArena=true;fireworks($("#fxa"),()=>fxArena);
+  }
+  fb_end(win);
+  setTimeout(()=>{
+    showSummary(win);
+    $("#end").classList.add("on");
+    if(win){fxOn=true;fireworks($("#fx"),()=>fxOn)}
+  },win?1200:1800);
+}
+function fb_end(win){
+  if(win){tone(660,.6,"triangle");setTimeout(()=>tone(990,.6,"triangle"),200)}
+  else setTimeout(sad,450);
+}
+// เสียงผิดหวัง "วา-วา-วา-วาาา" โน้ตไล่ลงพร้อมเอฟเฟกต์ wah
+function sad(){const c=ac();if(!c)return;try{
+  let t=c.currentTime+.05;
+  [[392,.4],[370,.4],[349,.4],[330,1]].forEach(([f,d],i)=>{
+    const o=c.createOscillator(),g=c.createGain(),fl=c.createBiquadFilter();
+    o.type="sawtooth";fl.type="lowpass";fl.Q.value=4;
+    o.frequency.setValueAtTime(f,t);o.frequency.exponentialRampToValueAtTime(f*(i===3?.82:.97),t+d);
+    fl.frequency.setValueAtTime(450,t);fl.frequency.linearRampToValueAtTime(1500,t+d*.25);fl.frequency.linearRampToValueAtTime(450,t+d);
+    g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.24,t+.04);g.gain.exponentialRampToValueAtTime(.001,t+d);
+    o.connect(fl);fl.connect(g);g.connect(master);o.start(t);o.stop(t+d+.05);t+=d*.92;
+  })}catch(e){}}
+// หน้าตายิ้มตอนชนะ
+const FACE={tiger:{y:50,c:"#ff9a2e",m:72},giraffe:{y:46,c:"#ffd54a",m:79},zebra:{y:50,c:"#ffffff",m:80},elephant:{y:38,c:"#b7c8e6",m:null}};
+const HAPPY=k=>{const f=FACE[k];
+  const eye=x=>`<circle cx="${x}" cy="${f.y}" r="8.6" fill="${f.c}"/><path d="M${x-7} ${f.y+3}Q${x} ${f.y-8} ${x+7} ${f.y+3}" stroke="#1a1208" stroke-width="3.6" fill="none" ${S}/>`;
+  const mouth=f.m?`<path d="M38 ${f.m}Q50 ${f.m+17} 62 ${f.m}Z" fill="#5a1a1a" stroke="#2a0a0a" stroke-width="2" ${S}/><path d="M44 ${f.m+8}Q50 ${f.m+4} 56 ${f.m+8}Q50 ${f.m+14} 44 ${f.m+8}Z" fill="#ff7a8a"/>`:"";
+  return `<svg class="brows" viewBox="0 0 100 100">${eye(36)}${eye(64)}<circle cx="21" cy="${f.y+13}" r="5.5" fill="#ff6b8a" opacity=".45"/><circle cx="79" cy="${f.y+13}" r="5.5" fill="#ff6b8a" opacity=".45"/>${mouth}</svg>`};
+// หน้าสรุปผล: คะแนน + คำที่พลาด พร้อมปุ่มลำโพงอ่านทั้งคำ
+const SPK='<svg viewBox="0 0 24 24" fill="#fff"><path d="M3 9v6h4l5 4V5L7 9z"/><path d="M15 8.5a5 5 0 010 7M17.5 6a8.5 8.5 0 010 12" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/></svg>';
+function showSummary(win){
+  $("#endtitle").textContent=win?"ชนะแล้ว! เย้!":"แพ้แล้ว ลองอีกครั้งนะ";
+  $("#endsub").textContent=`คะแนนรวม ${score}`;
+  const ws=Object.entries(missed),box=$("#missed");
+  box.innerHTML=ws.length
+    ?`<h3>คำที่ยังพลาด (กดลำโพงฟังคำอ่าน)</h3><div class="list">`+ws.map(([w,n])=>`<div class="chip"><b>${w}</b>${n>1?`<small>×${n}</small>`:""}<button type="button" data-w="${w}" aria-label="ฟังคำว่า ${w}">${SPK}</button></div>`).join("")+`</div>`
+    :`<h3>ไม่พลาดเลย เก่งมาก!</h3>`;
+}
+$("#missed").onclick=e=>{const b=e.target.closest("button[data-w]");if(b)speakWord(b.dataset.w)};
+function speakWord(w){try{
+  hintId++;if(speechSynthesis.speaking||speechSynthesis.pending)speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(w);u.lang="th-TH";u.rate=.9;u.pitch=1.12;const v=thaiVoice();if(v)u.voice=v;
+  speechSynthesis.speak(u)}catch(e){}}
+
+// พลุ
+// พลุ: จรวดพุ่งขึ้นแล้วแตกเป็นดอก ใช้ได้ทั้งฉากหลังในสนามและหน้าสรุปผล
+function fireworks(cv,alive){
+  const c=cv.getContext("2d"),dp=window.devicePixelRatio||1,r=cv.getBoundingClientRect();
+  cv.width=Math.max(1,Math.round(r.width*dp));cv.height=Math.max(1,Math.round(r.height*dp));
+  let ps=[],rk=[],last=-9999;
+  const launch=()=>rk.push({x:(.12+Math.random()*.76)*cv.width,y:cv.height*.86,vy:-(4.5+Math.random()*2)*dp*(cv.height/(500*dp)+.5),ty:(.1+Math.random()*.35)*cv.height,h:Math.random()*360});
+  const burst=k=>{for(let i=0;i<54;i++){const a=Math.PI*2*i/54,s=(1.6+Math.random()*2.6)*dp;ps.push({x:k.x,y:k.y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,l:1,h:k.h+Math.random()*30})}};
+  function loop(t){
+    if(!alive()){c.clearRect(0,0,cv.width,cv.height);return}
+    if(t-last>480){launch();last=t}
+    c.clearRect(0,0,cv.width,cv.height);
+    rk=rk.filter(k=>{k.y+=k.vy;c.fillStyle="#ffe9a8";c.fillRect(k.x-1.5*dp,k.y,3*dp,10*dp);if(k.y<=k.ty){burst(k);return false}return true});
+    ps=ps.filter(p=>p.l>0);
+    for(const p of ps){p.x+=p.vx;p.y+=p.vy;p.vy+=.045*dp;p.l-=.014;c.fillStyle=`hsla(${p.h},100%,62%,${p.l})`;c.beginPath();c.arc(p.x,p.y,2.6*dp,0,7);c.fill()}
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+}
+</script>
+</body>
+</html>
