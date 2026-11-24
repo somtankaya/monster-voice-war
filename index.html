@@ -13,6 +13,50 @@ html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
 body{height:100%;margin:0;background:linear-gradient(#04061a,#0b1040 55%,#1a2166);color:var(--text);font-family:"Mali","Sarabun","Noto Sans Thai",system-ui,sans-serif;overflow:hidden}
 button{font-family:inherit;cursor:pointer;border:0;color:inherit}
 button:focus-visible{outline:4px solid var(--gold);outline-offset:3px}
+
+/* หน้าแรก: แผนที่ด่านในอวกาศ */
+#home{position:relative;align-items:center;overflow:hidden;background:radial-gradient(120% 60% at 50% 0,#3b2a8c55,transparent 60%),linear-gradient(#070a2e,#101a5c 60%,#1d2a8a)}
+#home .tw{position:absolute;inset:0;pointer-events:none}
+#home .tw i{position:absolute;width:3px;height:3px;border-radius:50%;background:#fff;animation:twk 2.4s ease-in-out infinite}
+@keyframes twk{50%{opacity:.2;transform:scale(.6)}}
+.sign{margin:calc(14px + env(safe-area-inset-top,0px)) 0 0;position:relative;z-index:2;text-align:center}
+.sign .wood{display:inline-block;background:linear-gradient(#a8742f,#7a4a1a);border:4px solid #4d2e0e;border-radius:20px;padding:8px 22px;box-shadow:0 5px 0 #3a2410;font-size:clamp(24px,7vw,34px);font-weight:800;color:#fff;-webkit-text-stroke:0;text-shadow:0 3px 0 #1d2a8a,0 0 10px #1d2a8a}
+.sign .wood em{font-style:normal;color:#ffd23f}
+.sign .rib{display:block;width:fit-content;margin:6px auto 0;background:linear-gradient(#8a5df0,#6a3fd0);border:3px solid #fff3;border-radius:10px;padding:3px 16px;font-size:14px;font-weight:700}
+#swap{position:absolute;top:calc(118px + env(safe-area-inset-top,0px));right:12px;z-index:5;width:62px;height:62px;border-radius:50%;background:radial-gradient(#5cc8ff,#2d7fe0);border:4px solid #fff;box-shadow:0 4px 0 #16206b;padding:0;overflow:visible}
+#swap .face{position:absolute;inset:6px;border-radius:50%;overflow:hidden;background:#cfeeff}
+#swap .face svg{width:100%;height:100%;display:block}
+#swap .arr{position:absolute;right:-8px;bottom:-8px;width:26px;height:26px;border-radius:50%;background:var(--gold);color:#3a2a00;display:grid;place-items:center;font-size:0}
+#swap .arr svg{width:16px;height:16px;animation:rot 3s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+.map{position:relative;z-index:2;flex:1;width:min(430px,100%);display:flex;flex-direction:column;justify-content:space-evenly;padding:56px 10px 10px}
+.node{position:relative;background:none;display:flex;flex-direction:column;align-items:center;width:150px;padding:0;margin:0}
+.node.L{align-self:flex-start;margin-left:10%}.node.R{align-self:flex-end;margin-right:10%}
+.node .ball{border-radius:58% 42% 55% 45% / 48% 56% 44% 52%!important;position:relative;width:clamp(70px,12vh,100px);height:clamp(70px,12vh,100px);border-radius:50%;animation:spin 9s linear infinite;box-shadow:inset -10px -12px 0 #0003,0 0 22px var(--g)}
+.node .ball::before{content:"";position:absolute;inset:0;border-radius:inherit;background:radial-gradient(circle at 24% 28%,#0003 0 9%,transparent 10%),radial-gradient(circle at 70% 22%,#0003 0 6%,transparent 7%),radial-gradient(circle at 62% 66%,#0003 0 12%,transparent 13%),radial-gradient(circle at 26% 74%,#0003 0 7%,transparent 8%),radial-gradient(circle at 85% 52%,#0003 0 5%,transparent 6%)}
+.node.first .ball{width:clamp(92px,15vh,124px);height:clamp(92px,15vh,124px);border-radius:46% 54% 42% 58% / 56% 44% 56% 44%!important;box-shadow:inset -10px -12px 0 #0003,0 0 26px #ffd23f,0 0 50px #ffd23f66;animation:spin 7s linear infinite}
+.node.first{filter:none}
+.node .ball{box-shadow:inset -10px -12px 0 #0003,0 0 22px var(--g)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.node .lab{position:absolute;top:calc(50% - 6px);left:50%;transform:translate(-50%,-50%);background:#fff3d6;color:#4b2e0a;border-radius:12px;padding:3px 10px;font-weight:800;line-height:1.15;box-shadow:0 3px 0 #0003;white-space:nowrap}
+.node .lab small{display:block;font-size:13px;font-weight:700;opacity:.8}
+.node .st{display:flex;gap:2px;margin-top:6px;color:#4b2e0a}.node .st svg{width:16px;height:16px}
+.node:not(.first) .lab{font-size:15px}
+.node:active .ball{animation-duration:2s}
+.node .flag{position:absolute;top:-16px;right:18px;width:22px;height:30px}
+.node .path{position:absolute;pointer-events:none}
+.ship{position:absolute;left:0;top:0;width:116px;z-index:3;pointer-events:none;transition:transform 1s ease-in-out}.ship .in{animation:bob 3s ease-in-out infinite}.ship.fly .in{animation:fly .5s ease-in-out infinite alternate}@keyframes fly{from{transform:rotate(-8deg)}to{transform:rotate(8deg)}}
+.ship svg.sau{width:100%;display:block}
+.ship .dome{position:absolute;left:30px;top:2px;width:56px;height:56px;border-radius:50%;overflow:hidden;background:radial-gradient(#cfeeff,#7fc8ff);border:3px solid #fff8}
+.ship .dome svg{width:100%;height:100%;display:block;transform:translateY(4px);animation:wave 2.4s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-8px) rotate(2deg)}}
+@keyframes wave{50%{transform:translateY(4px) rotate(5deg)}}
+#trail{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;overflow:visible}#trail path{fill:none;stroke:#ffe9a8;stroke-width:4;stroke-linecap:round;stroke-dasharray:2 12;animation:flow 1.4s linear infinite;opacity:.85}@keyframes flow{to{stroke-dashoffset:-14}}.node{z-index:1}.dots{align-self:center;display:flex;flex-direction:column;gap:3px;opacity:.7}
+.dots i{width:4px;height:4px;border-radius:50%;background:#ffe9a8}
+#soon{position:fixed;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px;background:#0b114aee;z-index:20;text-align:center;padding:24px}
+#soon.on{display:flex}#soon h2{margin:0;font-size:clamp(26px,7vw,36px)}
+#soon button,.back{background:var(--gold);color:#3a2a00;font-weight:700;font-size:18px;padding:12px 24px;border-radius:16px;box-shadow:0 4px 0 #a07800}
+#level{position:relative}
 .screen{display:none;height:100%;flex-direction:column}
 .screen.on{display:flex}
 #pick{align-items:center;justify-content:center;gap:18px;padding:16px;text-align:center}
@@ -127,18 +171,28 @@ button:focus-visible{outline:4px solid var(--gold);outline-offset:3px}
 </head>
 <body>
 
-<section id="level" class="screen on">
-  <h1>ศึกเสียงพิชิตมอนสเตอร์</h1>
+<section id="home" class="screen on">
+  <div class="tw" id="tw"></div>
+  <button id="swap" type="button" aria-label="เปลี่ยนตัวละคร"><span class="face" id="swapface"></span><span class="arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 8a8 8 0 0 0-14-2M4 4v4h4M4 16a8 8 0 0 0 14 2M20 20v-4h-4"/></svg></span></button>
+  <div class="sign"><span class="wood">ภารกิจพิชิต<em>สระไทย</em></span><span class="rib">ออกเดินทางไปเรียนรู้สระกันเถอะ!</span></div>
+  <div class="map" id="map"></div>
+</section>
+
+<section id="level" class="screen">
+  <h1>สระอา (า)</h1>
   <p>เลือกระดับ</p>
   <div class="levels" id="levels"></div>
+  <div id="micnote">กรุณากด “อนุญาต” ให้ใช้ไมโครโฟนในหน้าต่างที่ขึ้นมา</div>
+  <button id="tohome" class="link" type="button">กลับหน้าแรก</button>
 </section>
+
+<div id="soon"><h2>ตอนนี้ยังไม่พร้อม รอก่อนนะ</h2><button id="soonback" type="button">กลับหน้าแรก</button></div>
 
 <section id="pick" class="screen">
   <h1>ศึกเสียงพิชิตมอนสเตอร์</h1>
   <p>เลือกตัวละครของหนู</p>
   <div class="chars" id="chars"></div>
-  <div id="micnote">กรุณากด “อนุญาต” ให้ใช้ไมโครโฟนในหน้าต่างที่ขึ้นมา</div>
-  <button id="tolevel" class="link" type="button">เปลี่ยนระดับ</button>
+  <button id="pickback" class="link" type="button">กลับหน้าแรก</button>
 </section>
 
 <section id="game" class="screen">
@@ -183,12 +237,11 @@ button:focus-visible{outline:4px solid var(--gold);outline-offset:3px}
       <button class="big sm" id="hear" aria-label="ฟังเสียงตัวอย่าง"><svg viewBox="0 0 24 24" fill="#fff"><path d="M3 9v6h4l5 4V5L7 9z"/><path d="M15 8.5a5 5 0 010 7M17.5 6a8.5 8.5 0 010 12" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/></svg></button>
       <button class="big" id="mic" aria-label="กดแล้วพูด"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><rect x="9" y="2.5" width="6" height="12" rx="3" fill="#fff"/><path d="M5.5 11.5a6.5 6.5 0 0013 0M12 18v3.5M8.5 21.5h7"/></svg></button>
     </div>
-    <div class="row" id="manual"><button id="mok"><svg viewBox="0 0 24 24" fill="none" stroke="#073" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>พูดถูก</button><button id="mno"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round"><path d="M5 5l14 14M19 5L5 19"/></svg>ยังไม่ถูก</button></div>
   </div>
 </section>
 
 <div id="end"><h2 id="endtitle"></h2><div id="endsub"></div><div id="missed"></div>
-  <div class="btns"><button id="again">เล่นอีกครั้ง</button><button id="back">เลือกตัวละคร</button><button id="lvl">เลือกระดับ</button></div>
+  <div class="btns"><button id="again">เล่นอีกครั้ง</button><button id="back">หน้าแรก</button><button id="lvl">เลือกระดับ</button></div>
 </div>
 <canvas id="fx"></canvas>
 
@@ -349,8 +402,48 @@ function boom(big=1){const c=ac();if(!c)return;try{const t=c.currentTime;
 $("#chars").innerHTML=CHARS.map((c,i)=>`<button data-i="${i}"><span>${ART[c[0]]}</span>${c[1]}</button>`).join("");
 const STAR='<svg viewBox="0 0 24 24"><path d="M12 2l3 6.9 7.5.7-5.7 5 1.7 7.4L12 18l-6.5 4 1.7-7.4-5.7-5 7.5-.7z" fill="currentColor"/></svg>';
 $("#levels").innerHTML=Object.entries(LEVELS).map(([k,L])=>`<button type="button" data-k="${k}" style="--c:${L.c}"><span><b>${L.n}</b><small>${L.d}</small></span><span class="stars" style="color:${L.c}">${STAR.repeat(L.stars)}</span></button>`).join("");
-$("#levels").onclick=e=>{const b=e.target.closest("button[data-k]");if(b){level=b.dataset.k;show("pick")}};
-$("#tolevel").onclick=()=>show("level");
+$("#levels").onclick=e=>{const b=e.target.closest("button[data-k]");if(!b||priming)return;
+  level=b.dataset.k;ac();unlockTTS();priming=true;
+  primeMic().then(()=>{priming=false;$("#micnote").style.display="none";start()});
+};
+$("#tohome").onclick=()=>show("home");
+$("#pickback").onclick=()=>show("home");
+$("#swap").onclick=()=>show("pick");
+$("#soonback").onclick=()=>{$("#soon").classList.remove("on");shipAt=0;placeShip(0,true)};
+// หน้าแรก: ด่านเป็นดาวหมุน
+const WORLDS=[["สระอา","า",1,"#ffd23f"],["สระอี","\u25ccี",0,"#7b5cf0"],["สระอู","\u25ccู",0,"#5cc85c"],["สระโอ","โ\u25cc",0,"#ff6f7d"]];
+const SHIP=k=>`<div class="ship" id="ship"><div class="in" style="position:relative"><svg class="sau" viewBox="0 0 116 70"><ellipse cx="58" cy="46" rx="56" ry="17" fill="#8d96b8" stroke="#4a5280" stroke-width="3"/><ellipse cx="58" cy="42" rx="40" ry="10" fill="#c3cae6"/><circle cx="20" cy="47" r="3.5" fill="#ffe36b"/><circle cx="38" cy="53" r="3.5" fill="#ffe36b"/><circle cx="58" cy="55" r="3.5" fill="#ffe36b"/><circle cx="78" cy="53" r="3.5" fill="#ffe36b"/><circle cx="96" cy="47" r="3.5" fill="#ffe36b"/></svg><div class="dome" id="shipdome">${ART[k]}</div></div></div>`;
+let shipAt=0,traveling=false;
+function placeShip(i,anim){const m=$("#map"),sh=$("#ship");if(!m||!sh||!m.offsetWidth)return;const r=m.getBoundingClientRect(),b=m.querySelectorAll(".ball")[i].getBoundingClientRect();
+  sh.style.transition=anim?"":"none";sh.style.transform=`translate(${b.left+b.width/2-r.left-58}px,${b.top-r.top-52}px)`;if(!anim)sh.offsetWidth}
+function drawHome(){
+  const dim=`<span style="opacity:.35">${STAR}</span>`.repeat(3);
+  shipAt=0;$("#map").innerHTML='<svg id="trail"></svg>'+SHIP(CHARS[ch][0])+WORLDS.map((w,i)=>`<button class="node ${i%2?"R":"L"}${w[2]?" first":""}" type="button" data-i="${i}"${w[2]?"":""}><span class="ball" style="background:radial-gradient(circle at 35% 30%,#fff5,transparent 40%),${w[3]};--g:${w[3]}88"></span><span class="lab"><b>${w[0]}</b><small>(${w[1]})</small></span>${w[2]?`<span class="st" style="color:#4b2e0a">${dim}</span>`:""}</button>`).join("");
+  $("#swapface").innerHTML=ART[CHARS[ch][0]];
+  requestAnimationFrame(()=>{drawTrail();placeShip(shipAt,false)});
+}
+// เส้นประโค้งไปมา เหมือนยานขับเป๋ไปเป๋มา
+function drawTrail(){
+  const m=$("#map"),sv=$("#trail");if(!m||!sv||!m.offsetWidth)return;
+  const r=m.getBoundingClientRect(),P=[...m.querySelectorAll(".ball")].map(b=>{const q=b.getBoundingClientRect();return [q.left+q.width/2-r.left,q.top+q.height/2-r.top]});
+  let d="";
+  for(let i=0;i<P.length-1;i++){
+    const [x1,y1]=P[i],[x2,y2]=P[i+1],dy=y2-y1,dx=x2-x1,w=70;
+    if(!i)d+=`M${x1} ${y1}`;
+    // วนซ้าย-ขวาสลับกัน 3 ช่วงต่อด่าน
+    d+=` C${x1+w*1.6} ${y1+dy*.15} ${x1+dx*.3-w} ${y1+dy*.3} ${x1+dx*.4} ${y1+dy*.42}`;
+    d+=` S${x2-dx*.3+w*1.2} ${y1+dy*.72} ${x2} ${y2}`;
+  }
+  sv.setAttribute("viewBox",`0 0 ${r.width} ${r.height}`);sv.innerHTML=`<path d="${d}"/>`;
+}
+addEventListener("resize",()=>{drawTrail();placeShip(shipAt,false)});
+$("#map").onclick=e=>{const n=e.target.closest(".node");if(!n||traveling)return;const i=+n.dataset.i;
+  traveling=true;shipAt=i;const sh=$("#ship");sh.classList.add("fly");placeShip(i,true); // เดินทาง 1 วินาที
+  setTimeout(()=>sh.classList.remove("fly"),1000);
+  setTimeout(()=>{traveling=false;if(i===0)show("level");else $("#soon").classList.add("on")},1400); // หยุดรอ 0.4 วินาทีแล้วค่อยเข้า
+};
+(function(){let h="";for(let i=0;i<46;i++)h+=`<i style="left:${Math.random()*100}%;top:${Math.random()*100}%;animation-delay:${(Math.random()*2.4).toFixed(2)}s;transform:scale(${.6+Math.random()})"></i>`;$("#tw").innerHTML=h})();
+drawHome();
 // เปิดเสียงพูดของเบราว์เซอร์ในจังหวะที่ผู้เล่นกด (มือถือไม่ยอมให้พูดถ้าไม่ได้เริ่มจากการแตะ)
 function unlockTTS(){try{const u=new SpeechSynthesisUtterance(".");u.volume=0;u.lang="th-TH";speechSynthesis.speak(u)}catch(e){}}
 // ขอสิทธิ์ไมโครโฟนทันทีหลังเลือกตัวละคร: เปิดการฟังเสียงชั่วครู่แล้วปิด เพื่อให้หน้าต่างขออนุญาตขึ้นก่อนเริ่มเกม
@@ -370,12 +463,11 @@ function primeMic(){
     }catch(e){fin()}
   });
 }
-$("#chars").onclick=e=>{const b=e.target.closest("button");if(!b||priming)return;
-  ch=+b.dataset.i;ac();unlockTTS();priming=true;
-  primeMic().then(()=>{priming=false;$("#micnote").style.display="none";start()});
+$("#chars").onclick=e=>{const b=e.target.closest("button");if(!b)return;
+  ch=+b.dataset.i;drawHome();show("home");
 };
 $("#lvl").onclick=()=>{stopAll();$("#end").classList.remove("on");fxOn=false;show("level")};
-$("#back").onclick=()=>{stopAll();$("#end").classList.remove("on");fxOn=false;show("pick")};
+$("#back").onclick=()=>{stopAll();$("#end").classList.remove("on");fxOn=false;show("home")};
 $("#again").onclick=()=>{$("#end").classList.remove("on");fxOn=false;start()};
 $("#hear").onclick=()=>{if(!cur||busy)return;
   // ฟังซ้ำ: หยุดนับเวลา อ่านใหม่ แล้วเริ่มนับเมื่ออ่านจบ
@@ -385,10 +477,8 @@ $("#hear").onclick=()=>{if(!cur||busy)return;
   $("#fb").style.color="";$("#fb").textContent=`ฟังนะ: “${cur[0][0]}อ – อา”`;
   speakSeq(hintParts(cur),hintDone)};
 $("#mic").onclick=()=>{if(busy||!SR)return;micDenied=false;$("#mic").classList.remove("ready");if(!armed)startTimer();listen(true)};
-$("#mok").onclick=()=>{if(!busy)judge(true,"")};
-$("#mno").onclick=()=>{if(!busy)judge(false,"")};
 
-function show(id){document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("on",s.id===id))}
+function show(id){document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("on",s.id===id));if(id==="home")requestAnimationFrame(()=>{drawTrail();placeShip(shipAt,false)})}
 function hpHTML(n){return Array.from({length:MAXHP},(_,i)=>`<i class="${i<n?"":"off"}"></i>`).join("")}
 function render(){
   $("#me .hp").innerHTML=hpHTML(php);$("#mon .hp").innerHTML=hpHTML(ehp);
@@ -406,7 +496,7 @@ function start(){
   $("#me .who").innerHTML=ART[CHARS[ch][0]]+BROWS(CHARS[ch][0]);$("#me .who").style.visibility="visible";
   $("#mon .who").innerHTML=ART.monster;$("#mon .who").style.visibility="visible";
   $("#me .body").innerHTML=TANK_ME;$("#mon .body").innerHTML=TANK_EN;
-  $("#manual").style.display=(SR&&!micDenied)?"none":"flex";$("#mic").style.display=SR?"":"none";
+  $("#mic").style.display=SR?"":"none";
   show("game");render();nextWord(); // เรียกทันทีในจังหวะที่ผู้เล่นกด เพื่อให้เบราว์เซอร์ยอมเล่นเสียงพูด
 }
 function stopAll(){playing=false;armed=false;fxArena=false;fxOn=false;stopSpeech();clearTimeout(tmo);try{rec&&rec.abort()}catch(e){}rec=null;$("#mic").classList.remove("live")}
@@ -454,7 +544,7 @@ function listen(manual){
     dbg("error: "+e.error);
     if(e.error!=="no-speech"&&e.error!=="aborted"){
       // ใช้ไมค์ไม่ได้: ไม่หยุดนับเวลา แต่เปิดปุ่มให้ผู้ปกครองตัดสินแทน
-      micDenied=true;$("#manual").style.display="flex";
+      micDenied=true;
       if(!timerOn&&!busy)startTimer();
       if(!busy)$("#fb").textContent="ใช้ไมค์ไม่ได้ ให้ผู้ปกครองกดถูก/ผิดแทน";
     }
