@@ -99,10 +99,17 @@ button:focus-visible{outline:4px solid var(--gold);outline-offset:3px}
 #manual button{padding:10px 18px;border-radius:14px;font-size:16px;font-weight:700;background:var(--ok);color:#073}
 #manual button+button{background:var(--bad);color:#fff}
 #end{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:#0b114acc;z-index:10;text-align:center;padding:20px}
-#end.on{display:flex}
+.stars5{display:flex;gap:6px;justify-content:center}.stars5 span{width:40px;height:40px;color:#ffffff33}.stars5 span.on{color:var(--gold)}.stars5 svg{width:100%;height:100%}
+#endsub .pct{font-size:44px;line-height:1.1}#endsub .sm{font-size:14px;color:#fff;opacity:.85;font-weight:400}
+.dash{width:min(420px,92vw);text-align:left;max-height:46vh;overflow:auto}.dash h3{margin:10px 0 6px;font-size:16px;text-align:left}#end .btns{flex:none;padding-bottom:20px}.dash .list{justify-content:flex-start}
+.dash .cnt{display:flex;gap:10px}.dash .cnt div{flex:1;text-align:center;border-radius:14px;padding:6px;background:#ffffff18}.dash .cnt b{display:block;font-size:30px}
+.dash .okc b{color:var(--ok)}.dash .noc b{color:var(--bad)}.dash .chip.g{background:#1d6b45}
+.dash .rows{display:flex;flex-direction:column;gap:6px}.dash .row{display:flex;align-items:center;gap:8px}.dash .row b{width:44px;font-size:20px}.dash .row span{width:46px;text-align:right}
+.dash .bar{flex:1;height:12px;border-radius:8px;background:#ffffff22;overflow:hidden}.dash .bar i{display:block;height:100%}
+#end.on{display:flex}#end{background:#0b114af5!important;overflow-y:auto!important;justify-content:flex-start!important;padding:18px 12px!important;gap:8px!important}#end h2{font-size:clamp(26px,7vw,36px)!important}.dash{max-height:none!important;overflow:visible!important}
 #end{overflow:auto}
 #endsub{font-size:22px;font-weight:700;color:var(--gold)}
-#missed{width:min(420px,100%);max-height:38vh;overflow:auto;display:flex;flex-direction:column;gap:8px}
+#missed{width:min(420px,100%);max-height:none;overflow:visible;flex:none;display:flex;flex-direction:column;gap:8px}
 #missed h3{margin:0;font-size:16px;font-weight:600;opacity:.9}
 #missed .list{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
 .chip{display:flex;align-items:center;gap:8px;background:var(--panel);border:3px solid var(--glass);border-radius:16px;padding:4px 6px 4px 14px}
@@ -124,7 +131,6 @@ button:focus-visible{outline:4px solid var(--gold);outline-offset:3px}
   <h1>ศึกเสียงพิชิตมอนสเตอร์</h1>
   <p>เลือกระดับ</p>
   <div class="levels" id="levels"></div>
-  <label id="tm"><input type="checkbox" id="testmode"> โหมดทดสอบ (ไม่จับเวลา ไม่เสียพลังชีวิต แสดงสิ่งที่ระบบได้ยิน)</label>
 </section>
 
 <section id="pick" class="screen">
@@ -165,7 +171,7 @@ button:focus-visible{outline:4px solid var(--gold);outline-offset:3px}
       <g fill="#2a294e" opacity=".75"><ellipse cx="62" cy="176" rx="24" ry="5"/><ellipse cx="200" cy="186" rx="30" ry="5.5"/><ellipse cx="338" cy="174" rx="22" ry="4.5"/><ellipse cx="130" cy="164" rx="10" ry="2.6"/><ellipse cx="274" cy="162" rx="12" ry="3"/></g>
     </svg>
     <canvas id="fxa"></canvas>
-    <div id="dbg"></div>
+    
     <div class="fighter" id="me"><div class="hp"></div><div class="tank"><span class="who"></span><span class="body"></span></div></div>
     <div class="fighter" id="mon"><div class="hp"></div><div class="tank"><span class="who"></span><span class="body"></span></div></div>
   </div>
@@ -216,13 +222,13 @@ const CHARS=[["tiger","เสือโคร่ง"],["giraffe","ยีราฟ
 // คำทั้งหมด 27 คำ และระดับความยาก (ง่าย 5 คำ / ปานกลาง 10 คำ / ยาก สุ่ม 20 คำจาก 27 คำ)
 const ALL=["กา","ขา","คา","งา","จา","ฉา","ชา","ซา","ดา","ตา","ถา","ทา","นา","ปา","ผา","ฝา","พา","ฟา","มา","ยา","รา","ลา","วา","สา","หา","อา","ฮา"];
 const LEVELS={
-  easy:{n:"ง่าย",d:"5 คำ",w:"กา ขา ตา นา ยา",stars:1,c:"#2fbf71",words:["กา","ขา","ตา","นา","ยา"]},
-  mid:{n:"ปานกลาง",d:"10 คำ",w:"เพิ่ม งา จา ซา ลา ปา",stars:2,c:"#ff9a2e",words:["กา","ขา","ตา","นา","ยา","งา","จา","ซา","ลา","ปา"]},
-  hard:{n:"ยาก",d:"สุ่ม 20 คำ",w:"จากทั้งหมด 27 คำ",stars:3,c:"#ff5a5f",pick:20}
+  easy:{n:"ง่าย",d:"5 คำ",w:"กา ขา ตา นา ยา",stars:1,c:"#2fbf71",words:["กา","ขา","ตา","นา","ยา"],pass:0.5},
+  mid:{n:"ปานกลาง",d:"10 คำ",w:"เพิ่ม งา จา ซา ลา ปา",stars:2,c:"#ff9a2e",words:["กา","ขา","ตา","นา","ยา","งา","จา","ซา","ลา","ปา"],pass:0.6},
+  hard:{n:"ยาก",d:"สุ่ม 20 คำ",w:"จากทั้งหมด 27 คำ",stars:3,c:"#ff5a5f",pick:20,pass:0.7}
 };
 // คำที่มีรูปประกอบ (คำอื่นไม่มีความหมายที่วาดง่าย จึงแสดงเฉพาะตัวอักษร)
 const PICKEY={"กา":"crow","ตา":"eye","ยา":"pill","ปา":"dart","ขา":"leg","นา":"field","มา":"come","หา":"search","ชา":"tea","ผา":"cliff","งา":"tusk","ลา":"donkey","ฝา":"lid","ทา":"brush","ฮา":"laugh"};
-let level="easy",pool=[],lastWord=null,priming=false;
+let results=[];let level="easy",pool=[],lastWord=null,priming=false;
 const buildPool=()=>{const L=LEVELS[level];const ws=L.words?L.words.slice():shuffle(ALL).slice(0,L.pick);return ws.map(w=>[w,PICKEY[w]||null])};
 // สลับลำดับใหม่ทุกครั้งที่เล่น และไม่ให้คำสุดท้ายรอบก่อนซ้ำเป็นคำแรกของรอบใหม่
 const refill=()=>{queue=shuffle(pool);const n=queue.length;if(n>1&&queue[n-1][0]===lastWord){const t=queue[0];queue[0]=queue[n-1];queue[n-1]=t}};
@@ -243,9 +249,9 @@ search:`<svg viewBox="0 0 100 100"><path d="M64 64L90 90" stroke="#7a4a1a" strok
 tea:`<svg viewBox="0 0 100 100"><path d="M34 26q-8-8 0-16M50 26q-8-8 0-16M66 26q-8-8 0-16" stroke="#9fb0ff" stroke-width="4" fill="none" ${S}/><path d="M72 46h8a12 12 0 0 1 0 24h-10" fill="none" stroke="#2b3a96" stroke-width="5" ${S}/><path d="M18 38H78V62Q78 84 48 84Q18 84 18 62Z" fill="#fff" stroke="#2b3a96" stroke-width="4" ${S}/><path d="M20 44H76" stroke="#c9742a" stroke-width="8"/><ellipse cx="48" cy="92" rx="38" ry="6" fill="#9fb0ff" stroke="#2b3a96" stroke-width="3"/><circle cx="36" cy="64" r="3" fill="#ff5a5f"/><circle cx="58" cy="64" r="3" fill="#ff5a5f"/></svg>`,
 cliff:`<svg viewBox="0 0 100 100"><rect x="4" y="4" width="92" height="92" rx="14" fill="#bfe8ff"/><circle cx="22" cy="24" r="10" fill="#ffd23f"/><path d="M4 88L38 28L56 52L68 36L96 88Z" fill="#8c8fa8" stroke="#464a6e" stroke-width="3" ${S}/><path d="M26 48L38 28L50 44L42 42L36 50Z" fill="#fff"/><path d="M60 46L68 36L78 52L70 48Z" fill="#fff"/><path d="M4 88H96V82A14 14 0 0 1 82 96H18A14 14 0 0 1 4 82Z" fill="#6fcf4a"/></svg>`
 };
-const MAXHP=10, TIME=10000, PASS=0.4; // เวลาพูด 10 วินาที / ผ่านเมื่อความมั่นใจของระบบ >= 40%
+const MAXHP=10, TIME=10000, PASS=0.5; // เวลาพูด 10 วินาที / ผ่านเมื่อความมั่นใจของระบบ >= 40%
 // confidence = 0 หรือไม่มีค่า แปลว่าเบราว์เซอร์ไม่รายงาน (เช่นผลระหว่างฟังบน Chrome) ให้ถือว่าผ่านเกณฑ์
-const confOK=c=>!c||c>=PASS;
+const confOK=c=>!c||c>=LEVELS[level].pass;
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 let ch=0,php,ehp,score,queue=[],cur,busy=true,playing=false,rec=null,tmo=null,micDenied=false,fxOn=false,fxArena=false,armed=false,hintId=0,missed={},timerOn=false,extended=false,gotSpeech=false;
 // เลือกเสียงไทยที่ฟังเป็นธรรมชาติที่สุดเท่าที่เครื่องมี
@@ -288,10 +294,9 @@ function onTimeout(){
   judge(false,"",true);
 }
 // โหมดทดสอบ: แสดงสิ่งที่ระบบได้ยินแบบสด
-let testMode=false;
+const testMode=false;
 const dbgLines=[];
 function dbg(m){if(!testMode)return;dbgLines.push(m);while(dbgLines.length>7)dbgLines.shift();$("#dbg").innerHTML=dbgLines.map(x=>`<div>${x.replace(/</g,"&lt;")}</div>`).join("")}
-function setTest(on){testMode=on;$("#dbg").style.display=on?"block":"none";$("#testmode").checked=on}
 // อัปเดตคะแนนทันทีที่ตัดสิน พร้อมตัวเลข +1 / −1 ลอยขึ้น (ไม่ต้องรอกระสุนยิงเสร็จ)
 function bump(d){
   const s=$("#score");s.innerHTML=`คะแนน<b>${score}</b>`;
@@ -338,7 +343,7 @@ function boom(big=1){const c=ac();if(!c)return;try{const t=c.currentTime;
 
 $("#chars").innerHTML=CHARS.map((c,i)=>`<button data-i="${i}"><span>${ART[c[0]]}</span>${c[1]}</button>`).join("");
 const STAR='<svg viewBox="0 0 24 24"><path d="M12 2l3 6.9 7.5.7-5.7 5 1.7 7.4L12 18l-6.5 4 1.7-7.4-5.7-5 7.5-.7z" fill="currentColor"/></svg>';
-$("#levels").innerHTML=Object.entries(LEVELS).map(([k,L])=>`<button type="button" data-k="${k}" style="--c:${L.c}"><span><b>${L.n}</b><small>${L.d} · ${L.w}</small></span><span class="stars" style="color:${L.c}">${STAR.repeat(L.stars)}</span></button>`).join("");
+$("#levels").innerHTML=Object.entries(LEVELS).map(([k,L])=>`<button type="button" data-k="${k}" style="--c:${L.c}"><span><b>${L.n}</b><small>${L.d}</small></span><span class="stars" style="color:${L.c}">${STAR.repeat(L.stars)}</span></button>`).join("");
 $("#levels").onclick=e=>{const b=e.target.closest("button[data-k]");if(b){level=b.dataset.k;show("pick")}};
 $("#tolevel").onclick=()=>show("level");
 // เปิดเสียงพูดของเบราว์เซอร์ในจังหวะที่ผู้เล่นกด (มือถือไม่ยอมให้พูดถ้าไม่ได้เริ่มจากการแตะ)
@@ -367,7 +372,6 @@ $("#chars").onclick=e=>{const b=e.target.closest("button");if(!b||priming)return
 $("#lvl").onclick=()=>{stopAll();$("#end").classList.remove("on");fxOn=false;show("level")};
 $("#back").onclick=()=>{stopAll();$("#end").classList.remove("on");fxOn=false;show("pick")};
 $("#again").onclick=()=>{$("#end").classList.remove("on");fxOn=false;start()};
-if(location.hash==="#test")$("#testmode").checked=true; // เปิดลิงก์ต่อท้าย #test เพื่อเปิดโหมดทดสอบอัตโนมัติ
 $("#hear").onclick=()=>{if(!cur||busy)return;
   // ฟังซ้ำ: หยุดนับเวลา อ่านใหม่ แล้วเริ่มนับเมื่ออ่านจบ
   armed=false;timerOn=false;gotSpeech=false;clearTimeout(tmo);try{rec&&rec.abort()}catch(e){}
@@ -389,12 +393,10 @@ function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.rando
 
 function start(){
   stopAll();
-  php=ehp=MAXHP;score=0;pool=buildPool();queue=[];lastWord=null;missed={};playing=true;
+  php=ehp=MAXHP;score=0;pool=buildPool();queue=[];lastWord=null;missed={};results=[];playing=true;
   document.querySelectorAll(".ghost,.cheer,.boom").forEach(n=>n.remove());
   ac();
-  setTest($("#testmode").checked);dbgLines.length=0;
-  if(testMode){let nv=0;try{nv=speechSynthesis.getVoices().filter(v=>/^th/i.test(v.lang)).length}catch(e){}
-    dbg("โหมดทดสอบ | รองรับฟังเสียง: "+(SR?"ใช่":"ไม่"));dbg("เสียงอ่านภาษาไทยในเครื่อง: "+nv+" เสียง")}
+  
   $("#me").classList.remove("wrecked");$("#mon").classList.remove("wrecked");
   $("#me .who").innerHTML=ART[CHARS[ch][0]]+BROWS(CHARS[ch][0]);$("#me .who").style.visibility="visible";
   $("#mon .who").innerHTML=ART.monster;$("#mon .who").style.visibility="visible";
@@ -435,14 +437,14 @@ function listen(manual){
       gotSpeech=true;
       dbg("กำลังฟัง: “"+A[0].t+"”"+(A[0].c?" "+Math.round(A[0].c*100)+"%":""));
       const hit=A.find(x=>!isEcho(x.t,cur[0])&&matches(x.t,cur[0])&&confOK(x.c));
-      if(hit){dbg("ผ่าน (ตัดสินระหว่างฟัง)");judge(true,hit.t)}
+      if(hit){dbg("ผ่าน (ตัดสินระหว่างฟัง)");judge(true,hit.t,false,false,hit.c)}
       return;
     }
     if(A.every(x=>isEcho(x.t,cur[0]))){dbg("ข้าม (น่าจะเป็นเสียงของระบบเอง): “"+A[0].t+"”");return}
     const hit=A.find(x=>matches(x.t,cur[0]));
     const ok=!!hit&&confOK(hit.c);
     if(testMode)dbg("ได้ยิน: "+A.map(x=>`“${x.t}” ${Math.round((x.c||0)*100)}%`).join(" | ")+" → "+(ok?"ผ่าน":(hit?"ตรงแต่มั่นใจต่ำกว่า "+Math.round(PASS*100)+"%":"ไม่ตรง")));
-    judge(ok,A[0].t,false,hit&&!ok);
+    judge(ok,A[0].t,false,hit&&!ok,hit&&hit.c);
   };
   rec.onerror=e=>{
     dbg("error: "+e.error);
@@ -460,13 +462,13 @@ function listen(manual){
   try{rec.start()}catch(e){}
 }
 
-function judge(ok,heard,timeout,lowconf){
+function judge(ok,heard,timeout,lowconf,conf){
   if(busy||!playing)return;
   busy=true;armed=false;timerOn=false;clearTimeout(tmo);stopSpeech();
   $("#mic").classList.remove("ready");$("#mic").disabled=true;$("#hear").disabled=true;
   try{rec&&rec.abort()}catch(e){}
   $("#timer div").style.transition="none";
-  score+=ok?1:-1;if(!ok)missed[cur[0]]=(missed[cur[0]]||0)+1;
+  results.push({w:cur[0],ok:ok,p:ok?(conf>0?Math.min(100,Math.round(conf*100)):100):0});score+=ok?1:-1;if(!ok)missed[cur[0]]=(missed[cur[0]]||0)+1;
   bump(ok?1:-1);dbg((ok?"ถูก +1":"ผิด −1")+" → คะแนน "+score);
   const fb=$("#fb");
   fb.style.color=ok?"var(--ok)":"var(--bad)";
@@ -539,11 +541,19 @@ const HAPPY=k=>{const f=FACE[k];
 const SPK='<svg viewBox="0 0 24 24" fill="#fff"><path d="M3 9v6h4l5 4V5L7 9z"/><path d="M15 8.5a5 5 0 010 7M17.5 6a8.5 8.5 0 010 12" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/></svg>';
 function showSummary(win){
   $("#endtitle").textContent=win?"ชนะแล้ว! เย้!":"แพ้แล้ว ลองอีกครั้งนะ";
-  $("#endsub").textContent=`คะแนนรวม ${score}`;
-  const ws=Object.entries(missed),box=$("#missed");
-  box.innerHTML=ws.length
-    ?`<h3>คำที่ยังพลาด (กดลำโพงฟังคำอ่าน)</h3><div class="list">`+ws.map(([w,n])=>`<div class="chip"><b>${w}</b>${n>1?`<small>×${n}</small>`:""}<button type="button" data-w="${w}" aria-label="ฟังคำว่า ${w}">${SPK}</button></div>`).join("")+`</div>`
-    :`<h3>ไม่พลาดเลย เก่งมาก!</h3>`;
+  const by={};results.forEach(r=>{const o=by[r.w]||(by[r.w]={w:r.w,ok:0,no:0,sum:0});r.ok?o.ok++:o.no++;o.sum+=r.p});
+  const L=Object.values(by),n=results.length;
+  const overall=n?Math.round(results.reduce((a,r)=>a+r.p,0)/n):0;
+  const nst=overall>=90?5:overall>=80?4:overall>=70?3:overall>=60?2:overall>=50?1:0;
+  const right=L.filter(o=>o.ok>0&&o.no===0),wrong=L.filter(o=>o.no>0);
+  const chips=(a,cls)=>a.length?a.map(o=>`<span class="chip ${cls}"><b>${o.w}</b></span>`).join(""):"<small>ไม่มี</small>";
+  $("#endsub").innerHTML=`<div class="stars5">${[1,2,3,4,5].map(i=>`<span class="${i<=nst?"on":""}">${STAR}</span>`).join("")}</div><div class="pct">${overall}%</div><div class="sm">คะแนนรวมของทุกคำ · คะแนนในเกม ${score}</div>`;
+  $("#missed").innerHTML=`<div class="dash">
+    <div class="cnt"><div class="okc"><b>${right.length}</b><small>คำที่ถูก</small></div><div class="noc"><b>${wrong.length}</b><small>คำที่ผิด</small></div></div>
+    <h3>ถูก</h3><div class="list">${chips(right,"g")}</div>
+    <h3>ผิด (กดลำโพงฟังคำอ่าน)</h3><div class="list">${wrong.length?wrong.map(o=>`<div class="chip r"><b>${o.w}</b><button type="button" data-w="${o.w}" aria-label="ฟังคำว่า ${o.w}">${SPK}</button></div>`).join(""):"<small>ไม่มี เก่งมาก!</small>"}</div>
+    <h3>คะแนนแต่ละคำ</h3>
+    <div class="rows">${L.map(o=>{const p=Math.round(o.sum/(o.ok+o.no));return `<div class="row"><b>${o.w}</b><div class="bar"><i style="width:${p}%;background:${p>=50?"var(--ok)":"var(--bad)"}"></i></div><span>${p}%</span></div>`}).join("")}</div></div>`;
 }
 $("#missed").onclick=e=>{const b=e.target.closest("button[data-w]");if(b)speakWord(b.dataset.w)};
 function speakWord(w){try{
