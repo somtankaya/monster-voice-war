@@ -382,7 +382,7 @@ function speakSeq(parts,done){
       if(id!==hintId||finished)return;
       if(i>=parts.length){setTimeout(fin,80);return}
       const first=i===0;
-      const u=new SpeechSynthesisUtterance(parts[i++]);u.lang="th-TH";u.rate=.92;u.volume=1;u.pitch=1.12;const v=thaiVoice();if(v)u.voice=v;
+      const u=new SpeechSynthesisUtterance(parts[i++]);u.lang="th-TH";u.rate=.92;u.pitch=1.12;const v=thaiVoice();if(v)u.voice=v;
       if(first){u.onstart=()=>{started=true};setTimeout(noVoice,2000)}
       u.onend=()=>setTimeout(next,160);u.onerror=()=>setTimeout(next,80);
       speechSynthesis.speak(u);
@@ -509,7 +509,7 @@ function hintDone(){
       armed=true;listen(false);
       setTimeout(()=>{if(playing&&!busy&&cur===w&&!timerOn)startTimer()},2500);
     }else startTimer();
-  },120);
+  },550);
 }
 
 // ตัดวรรณยุกต์และช่องว่างก่อนเทียบเสียง
@@ -530,7 +530,7 @@ const isEcho=(heard,target)=>{const n=canon(heard),c=target[0],v=STAGES[stage].v
   return n===""||n===canon(v)||n==="\u0e2d"||n===canon(v+v)||n===canon(c+"\u0e2d")||n===canon(c+"\u0e2d"+v)};
 
 let actx,master;
-function ac(){try{if(!actx){actx=new (window.AudioContext||window.webkitAudioContext)();const cp=actx.createDynamicsCompressor();master=actx.createGain();master.gain.value=.38;master.connect(cp);cp.connect(actx.destination)}if(actx.state==="suspended")actx.resume();return actx}catch(e){return null}}
+function ac(){try{if(!actx){actx=new (window.AudioContext||window.webkitAudioContext)();const cp=actx.createDynamicsCompressor();master=actx.createGain();master.gain.value=.5;master.connect(cp);cp.connect(actx.destination)}if(actx.state==="suspended")actx.resume();return actx}catch(e){return null}}
 function noiseBuf(c,d){const b=c.createBuffer(1,Math.floor(c.sampleRate*d),c.sampleRate),a=b.getChannelData(0);for(let i=0;i<a.length;i++)a[i]=Math.random()*2-1;return b}
 function tone(f,d,t="sine"){const c=ac();if(!c)return;try{const o=c.createOscillator(),g=c.createGain();o.type=t;o.frequency.value=f;g.gain.value=.15;o.connect(g);g.connect(master);o.start();g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d);o.stop(c.currentTime+d)}catch(e){}}
 // เสียงปืนใหญ่ ตู้มมม: เสียงทุ้มตกลง + เสียงลมก้องในลำคอ + เสียงแตกตอนยิง
@@ -793,7 +793,7 @@ function showSummary(win){
 $("#missed").onclick=e=>{const b=e.target.closest("button[data-w]");if(b)speakWord(b.dataset.w)};
 function speakWord(w){try{
   hintId++;if(speechSynthesis.speaking||speechSynthesis.pending)speechSynthesis.cancel();
-  const u=new SpeechSynthesisUtterance(w);u.lang="th-TH";u.rate=.9;u.volume=1;u.pitch=1.12;const v=thaiVoice();if(v)u.voice=v;
+  const u=new SpeechSynthesisUtterance(w);u.lang="th-TH";u.rate=.9;u.pitch=1.12;const v=thaiVoice();if(v)u.voice=v;
   speechSynthesis.speak(u)}catch(e){}}
 
 // พลุ
