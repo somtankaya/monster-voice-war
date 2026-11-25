@@ -366,7 +366,7 @@ let MAXHP=10; const TIME=10000, PASS=0.5; // เวลาพูด 10 วิน�
 // confidence = 0 หรือไม่มีค่า แปลว่าเบราว์เซอร์ไม่รายงาน (เช่นผลระหว่างฟังบน Chrome) ให้ถือว่าผ่านเกณฑ์
 const confOK=c=>!c||c>=LEVELS[level].pass;
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-let ch=0,php,ehp,score,queue=[],cur,busy=true,playing=false,rec=null,tmo=null,micDenied=false,fxOn=false,fxArena=false,armed=false,hintId=0,missed={},timerOn=false,extended=false,gotSpeech=false,recOn=false,micLive=false,floor=0,lastLen=0,taint=-1;
+let ch=0,php,ehp,score,queue=[],cur,busy=true,playing=false,rec=null,tmo=null,micDenied=false,fxOn=false,fxArena=false,armed=false,hintId=0,missed={},timerOn=false,extended=false,gotSpeech=false;
 // เลือกเสียงไทยที่ฟังเป็นธรรมชาติที่สุดเท่าที่เครื่องมี
 function thaiVoice(){try{const vs=speechSynthesis.getVoices().filter(v=>/^th/i.test(v.lang));if(!vs.length)return null;for(const re of [/premium/i,/enhanced/i,/natural|neural/i,/narisa|kanya|google/i]){const f=vs.find(v=>re.test(v.name));if(f)return f}return vs[0]}catch(e){return null}}
 try{speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>{}}catch(e){}
@@ -382,7 +382,7 @@ function speakSeq(parts,done){
       if(id!==hintId||finished)return;
       if(i>=parts.length){setTimeout(fin,80);return}
       const first=i===0;
-      const u=new SpeechSynthesisUtterance(parts[i++]);u.lang="th-TH";u.rate=1.1;u.volume=1;u.pitch=1.12;const v=thaiVoice();if(v)u.voice=v;
+      const u=new SpeechSynthesisUtterance(parts[i++]);u.lang="th-TH";u.rate=.92;u.volume=1;u.pitch=1.12;const v=thaiVoice();if(v)u.voice=v;
       if(first){u.onstart=()=>{started=true};setTimeout(noVoice,2000)}
       u.onend=()=>setTimeout(next,160);u.onerror=()=>setTimeout(next,80);
       speechSynthesis.speak(u);
@@ -498,15 +498,18 @@ function bump(d){
 function hintDone(){
   if(!playing||busy)return;
   $("#hear").disabled=false;$("#mic").disabled=false;
-  // ไมค์เปิดค้างอยู่แล้วตั้งแต่เริ่มเกม จึงเริ่มฟังและนับเวลาทันทีที่เสียงอ่านจบ
-  const w=cur;
-  $("#fb").textContent=`พูดเลย! “${cur[0]}”`;
-  gotSpeech=false;armed=true;
-  if(SR&&!micDenied){
-    listen(false);
-    if(micLive)startTimer();
-    else setTimeout(()=>{if(playing&&!busy&&cur===w&&!timerOn)startTimer()},2500); // สำรอง: ถ้าไมค์ยังไม่ตอบใน 2.5 วินาที ก็เริ่มนับเอง
-  }else startTimer();
+  // หน่วงสั้นๆ ก่อนเปิดไมค์ กันไมค์จับเสียงท้ายของเสียงอ่านโจทย์ ("อา") ที่เพิ่งจบ
+  const w=cur,id=hintId;
+  setTimeout(()=>{
+    if(!playing||busy||cur!==w||armed||id!==hintId)return;
+    $("#fb").textContent=`พูดเลย! “${cur[0]}”`;
+    gotSpeech=false;
+    if(SR&&!micDenied){
+      // เปิดไมค์ก่อน แล้วเริ่มนับเวลาเมื่อไมค์พร้อม (สำรอง: เริ่มนับเองถ้าไมค์ไม่ตอบใน 2.5 วินาที)
+      armed=true;listen(false);
+      setTimeout(()=>{if(playing&&!busy&&cur===w&&!timerOn)startTimer()},2500);
+    }else startTimer();
+  },120);
 }
 
 // ตัดวรรณยุกต์และช่องว่างก่อนเทียบเสียง
@@ -609,7 +612,7 @@ $("#back").onclick=()=>{stopAll();$("#end").classList.remove("on");fxOn=false;sh
 $("#again").onclick=()=>{$("#end").classList.remove("on");fxOn=false;start()};
 $("#hear").onclick=()=>{if(!cur||busy)return;
   // ฟังซ้ำ: หยุดนับเวลา อ่านใหม่ แล้วเริ่มนับเมื่ออ่านจบ
-  armed=false;timerOn=false;gotSpeech=false;clearTimeout(tmo);
+  armed=false;timerOn=false;gotSpeech=false;clearTimeout(tmo);try{rec&&rec.abort()}catch(e){}
   const bar=$("#timer div");bar.style.transition="none";bar.style.width="100%";
   $("#hear").disabled=true;$("#mic").disabled=true;$("#mic").classList.remove("ready","live");
   $("#fb").style.color="";$("#fb").textContent=`ฟังนะ: “${cur[0][0]}อ – ${STAGES[stage].vow}”`;
@@ -637,7 +640,7 @@ function start(){
   $("#mic").style.display=SR?"":"none";
   show("game");render();nextWord(); // เรียกทันทีในจังหวะที่ผู้เล่นกด เพื่อให้เบราว์เซอร์ยอมเล่นเสียงพูด
 }
-function stopAll(){playing=false;armed=false;fxArena=false;fxOn=false;stopSpeech();clearTimeout(tmo);try{rec&&rec.abort()}catch(e){}rec=null;recOn=false;micLive=false;$("#mic").classList.remove("live")}
+function stopAll(){playing=false;armed=false;fxArena=false;fxOn=false;stopSpeech();clearTimeout(tmo);try{rec&&rec.abort()}catch(e){}rec=null;$("#mic").classList.remove("live")}
 
 function nextWord(){
   if(!playing)return;
@@ -648,33 +651,23 @@ function nextWord(){
   const bar=$("#timer div");bar.style.transition="none";bar.style.width="100%";
   clearTimeout(tmo);
   $("#mic").classList.remove("ready","live");$("#mic").disabled=true;$("#hear").disabled=true;
-  listen(false); // เปิดไมค์ค้างไว้ตั้งแต่เริ่มคำ (ถ้ายังไม่เปิด) ไม่ต้องรอเสียงอ่านจบ
   speakSeq(hintParts(cur),hintDone);
 }
 
-// ตัดเสียงอ่านโจทย์ของระบบ ("กอ" "อา") ที่ติดอยู่ต้นประโยคออก ในกรณีที่ไมค์จับเสียงระบบเข้าไปด้วย
-function stripEcho(t){let n=canon(t);const c=cur[0][0],v=STAGES[stage].vow;
-  for(const p of [canon(c+"อ"),canon(v)])if(p&&n.startsWith(p))n=n.slice(p.length);
-  return n}
-// ไมค์เปิดค้างตลอดเกม (ไม่ปิด-เปิดใหม่ทุกคำ) ถ้าระบบตัดไปเองจะเปิดต่อทันที
 function listen(manual){
-  if(!SR||!playing||(micDenied&&!manual))return;
-  if(rec&&recOn)return;
+  if(!SR||busy||!playing||(micDenied&&!manual))return;
   try{rec&&rec.abort()}catch(e){}
-  rec=new SR();rec.lang="th-TH";rec.maxAlternatives=5;rec.interimResults=true;rec.continuous=true;
-  const mine=rec;recOn=true;micLive=false;floor=0;lastLen=0;taint=-1;
-  const ready=()=>{micLive=true;if(armed&&!busy&&mine===rec&&!timerOn)startTimer()};
+  rec=new SR();rec.lang="th-TH";rec.maxAlternatives=5;rec.interimResults=true;
+  const mine=rec;
+  // เริ่มนับเวลาเมื่อไมค์พร้อมฟังจริง ไม่ใช่ตอนสั่งเปิดไมค์ (เปิดไมค์บนมือถือใช้เวลาประมาณ 1 วินาที)
+  const ready=()=>{if(armed&&!busy&&mine===rec&&!timerOn)startTimer()};
   rec.onaudiostart=ready;
-  rec.onspeechstart=()=>{if(armed)gotSpeech=true};
-  rec.onstart=()=>{$("#mic").classList.add("live");dbg("เริ่มฟัง")};
+  rec.onspeechstart=()=>{gotSpeech=true};
+  rec.onstart=()=>{$("#mic").classList.add("live");dbg("เริ่มฟัง (เป้าหมาย: "+cur[0]+")")};
   rec.onresult=e=>{
-    if(mine!==rec)return;
-    const idx=e.results.length-1;lastLen=e.results.length;
-    // ช่วงเสียงอ่านโจทย์/ระหว่างตัดสิน: ไม่ตัดสิน แต่จำไว้ว่าประโยคนี้อาจมีเสียงระบบปนอยู่
-    if(busy||!armed){taint=idx;return}
-    if(idx<floor)return;
-    const R=e.results[idx];
-    const A=[...R].map(a=>({t:idx===taint?stripEcho(a.transcript):a.transcript,c:a.confidence}));
+    if(busy||mine!==rec)return;
+    const R=e.results[e.results.length-1];
+    const A=[...R].map(a=>({t:a.transcript,c:a.confidence}));
     if(!R.isFinal){
       // ได้ยินคำที่ตรงและมั่นใจพอแล้วระหว่างที่ยังพูดอยู่ → ผ่านทันที ไม่ต้องรอครบเวลา
       gotSpeech=true;
@@ -693,23 +686,22 @@ function listen(manual){
     if(e.error!=="no-speech"&&e.error!=="aborted"){
       // ใช้ไมค์ไม่ได้: ไม่หยุดนับเวลา แต่เปิดปุ่มให้ผู้ปกครองตัดสินแทน
       micDenied=true;
-      if(armed&&!timerOn&&!busy)startTimer();
+      if(!timerOn&&!busy)startTimer();
       if(!busy)$("#fb").textContent="ใช้ไมค์ไม่ได้ ให้ผู้ปกครองกดถูก/ผิดแทน";
     }
   };
   rec.onend=()=>{
-    if(mine!==rec)return;
-    recOn=false;micLive=false;$("#mic").classList.remove("live");dbg("หยุดฟัง");
-    if(playing&&!micDenied)setTimeout(()=>{if(playing&&mine===rec)listen(false)},100);
+    $("#mic").classList.remove("live");dbg("หยุดฟัง");
+    if(playing&&!busy&&armed&&mine===rec&&!micDenied)setTimeout(()=>listen(false),300);
   };
-  try{rec.start()}catch(e){recOn=false}
+  try{rec.start()}catch(e){}
 }
 
 function judge(ok,heard,timeout,lowconf,conf){
   if(busy||!playing)return;
   busy=true;armed=false;timerOn=false;clearTimeout(tmo);stopSpeech();
   $("#mic").classList.remove("ready");$("#mic").disabled=true;$("#hear").disabled=true;
-  floor=lastLen; // ผลฟังของคำนี้ทั้งหมดถือว่าใช้แล้ว ไมค์ยังเปิดต่อสำหรับคำถัดไป
+  try{rec&&rec.abort()}catch(e){}
   $("#timer div").style.transition="none";
   results.push({w:cur[0],ok:ok,p:typeof conf==="number"?conf:(ok?100:(timeout?bestAcc:0))});score+=ok?1:-1;if(!ok)missed[cur[0]]=(missed[cur[0]]||0)+1;
   bump(ok?1:-1);dbg((ok?"ถูก +1":"ผิด −1")+" → คะแนน "+score);
@@ -744,7 +736,7 @@ function shoot(from,to,done){
 }
 
 function finish(win){
-  playing=false;armed=false;clearTimeout(tmo);stopSpeech();try{rec&&rec.abort()}catch(e){}rec=null;recOn=false;micLive=false;$("#mic").classList.remove("live");
+  playing=false;armed=false;clearTimeout(tmo);stopSpeech();
   const loser=win?$("#mon"):$("#me"),winner=win?$("#me"):$("#mon");
   loser.querySelector(".who").style.visibility="hidden";
   const g=document.createElement("div");g.className="ghost";g.innerHTML=ART.ghost;loser.querySelector(".tank").appendChild(g);loser.classList.add("wrecked");
@@ -801,7 +793,7 @@ function showSummary(win){
 $("#missed").onclick=e=>{const b=e.target.closest("button[data-w]");if(b)speakWord(b.dataset.w)};
 function speakWord(w){try{
   hintId++;if(speechSynthesis.speaking||speechSynthesis.pending)speechSynthesis.cancel();
-  const u=new SpeechSynthesisUtterance(w);u.lang="th-TH";u.rate=1.08;u.volume=1;u.pitch=1.12;const v=thaiVoice();if(v)u.voice=v;
+  const u=new SpeechSynthesisUtterance(w);u.lang="th-TH";u.rate=.9;u.volume=1;u.pitch=1.12;const v=thaiVoice();if(v)u.voice=v;
   speechSynthesis.speak(u)}catch(e){}}
 
 // พลุ
