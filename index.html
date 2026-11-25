@@ -418,10 +418,10 @@ let draft=null,ptab="easy";
 let gAns="",gSol=0;
 function newGate(){
   const r=(a,b)=>a+Math.floor(Math.random()*(b-a+1)),t=r(0,3);let q;
-  if(t===0){const a=r(21,89),b=r(12,79);q=`${a} + ${b}`;gSol=a+b}
-  else if(t===1){const a=r(52,99),b=r(11,49);q=`${a} − ${b}`;gSol=a-b}
-  else if(t===2){const a=r(11,25),b=r(11,19);q=`${a} × ${b}`;gSol=a*b}
-  else{const b=r(11,19),c=r(2,9);q=`${b*c} ÷ ${b}`;gSol=c}
+  if(t===0){const a=r(11,49),b=r(3,9);q=`${a} + ${b}`;gSol=a+b}
+  else if(t===1){const a=r(21,59),b=r(3,9);q=`${a} − ${b}`;gSol=a-b}
+  else if(t===2){const a=r(3,9),b=r(3,9);q=`${a} × ${b}`;gSol=a*b}
+  else{const b=r(3,9),c=r(3,9);q=`${b*c} ÷ ${b}`;gSol=c}
   gAns="";$("#gq").textContent=q+" = ?";$("#ga").textContent="";
 }
 $("#gpad").innerHTML=[1,2,3,4,5,6,7,8,9].map(n=>`<button type="button" data-k="${n}">${n}</button>`).join("")+`<button type="button" class="del" data-k="del">ลบ</button><button type="button" data-k="0">0</button><button type="button" class="ok" data-k="ok">ตกลง</button>`;
@@ -530,7 +530,7 @@ const isEcho=(heard,target)=>{const n=canon(heard),c=target[0],v=STAGES[stage].v
   return n===""||n===canon(v)||n==="\u0e2d"||n===canon(v+v)||n===canon(c+"\u0e2d")||n===canon(c+"\u0e2d"+v)};
 
 let actx,master;
-function ac(){try{if(!actx){actx=new (window.AudioContext||window.webkitAudioContext)();const cp=actx.createDynamicsCompressor();master=actx.createGain();master.gain.value=.9;master.connect(cp);cp.connect(actx.destination)}if(actx.state==="suspended")actx.resume();return actx}catch(e){return null}}
+function ac(){try{if(!actx){actx=new (window.AudioContext||window.webkitAudioContext)();const cp=actx.createDynamicsCompressor();master=actx.createGain();master.gain.value=.5;master.connect(cp);cp.connect(actx.destination)}if(actx.state==="suspended")actx.resume();return actx}catch(e){return null}}
 function noiseBuf(c,d){const b=c.createBuffer(1,Math.floor(c.sampleRate*d),c.sampleRate),a=b.getChannelData(0);for(let i=0;i<a.length;i++)a[i]=Math.random()*2-1;return b}
 function tone(f,d,t="sine"){const c=ac();if(!c)return;try{const o=c.createOscillator(),g=c.createGain();o.type=t;o.frequency.value=f;g.gain.value=.15;o.connect(g);g.connect(master);o.start();g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d);o.stop(c.currentTime+d)}catch(e){}}
 // เสียงปืนใหญ่ ตู้มมม: เสียงทุ้มตกลง + เสียงลมก้องในลำคอ + เสียงแตกตอนยิง
