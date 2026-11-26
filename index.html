@@ -291,6 +291,7 @@ button:focus-visible{outline:4px solid var(--gold);outline-offset:3px}
       <g fill="#2a294e" opacity=".75"><ellipse cx="62" cy="176" rx="24" ry="5"/><ellipse cx="200" cy="186" rx="30" ry="5.5"/><ellipse cx="338" cy="174" rx="22" ry="4.5"/><ellipse cx="130" cy="164" rx="10" ry="2.6"/><ellipse cx="274" cy="162" rx="12" ry="3"/></g>
     </svg>
     <canvas id="fxa"></canvas>
+    <div id="dbg"></div>
     
     <div class="fighter" id="me"><div class="hp"></div><div class="tank"><span class="who"></span><span class="body"></span></div></div>
     <div class="fighter" id="mon"><div class="hp"></div><div class="tank"><span class="who"></span><span class="body"></span></div></div>
@@ -393,7 +394,7 @@ function clearSpeech(){try{if(Date.now()<warmUntil)return;if(speechSynthesis.spe
 // iPhone แจ้งว่า "อ่านจบ" ช้ากว่าเสียงจริงราว 1 วินาที จึงไม่รอแจ้งจบของคำสุดท้าย แต่นับจากตอนที่เสียงคำสุดท้ายเริ่มแทน
 const LASTMS=800;
 function speakSeq(parts,done){
-  const id=++hintId;let finished=false,i=0,started=false;
+  const id=++hintId;let finished=false,i=0,started=false;const T0=performance.now(),el=()=>Math.round(performance.now()-T0);
   const fin=()=>{if(finished||id!==hintId)return;finished=true;done()};
   try{
     clearSpeech();
@@ -403,8 +404,8 @@ function speakSeq(parts,done){
       const k=i,last=k===parts.length-1;let live=true;
       const u=new SpeechSynthesisUtterance(parts[k]);u.lang="th-TH";u.rate=.92;u.volume=1;u.pitch=1.12;const v=thaiVoice();if(v)u.voice=v;
       const go=()=>{if(!live)return;live=false;if(id!==hintId||finished)return;i=k+1;if(last)fin();else setTimeout(say,100)};
-      u.onstart=()=>{started=true;if(last)setTimeout(go,LASTMS)};
-      u.onend=go;u.onerror=go;
+      u.onstart=()=>{started=true;if(DEBUG)dbg((last?"ท่อนท้าย":"ท่อนแรก")+"เริ่มที่ "+el()+"ms"+(k===0&&v?" ["+v.name+(v.localService?"":" ออนไลน์")+"]":""));if(last)setTimeout(go,LASTMS)};
+      u.onend=()=>{if(DEBUG)dbg("iPhone แจ้งจบท่อน"+(k+1)+"ที่ "+el()+"ms");go()};u.onerror=go;
       speechSynthesis.speak(u);
     };
     say();
@@ -508,8 +509,10 @@ function onTimeout(){
 }
 // โหมดทดสอบ: แสดงสิ่งที่ระบบได้ยินแบบสด
 const testMode=false;
+const DEBUG=/[?&]debug/.test(location.search); // เปิดแสดงเวลาจริงของเสียง: ต่อท้ายลิงก์ด้วย ?debug
+if(DEBUG)document.addEventListener("DOMContentLoaded",()=>{$("#dbg").style.display="block"});
 const dbgLines=[];
-function dbg(m){if(!testMode)return;dbgLines.push(m);while(dbgLines.length>7)dbgLines.shift();$("#dbg").innerHTML=dbgLines.map(x=>`<div>${x.replace(/</g,"&lt;")}</div>`).join("")}
+function dbg(m){if(!testMode&&!DEBUG)return;dbgLines.push(m);while(dbgLines.length>7)dbgLines.shift();$("#dbg").innerHTML=dbgLines.map(x=>`<div>${x.replace(/</g,"&lt;")}</div>`).join("")}
 // อัปเดตคะแนนทันทีที่ตัดสิน พร้อมตัวเลข +1 / −1 ลอยขึ้น (ไม่ต้องรอกระสุนยิงเสร็จ)
 function bump(d){
   const s=$("#score");s.innerHTML=`คะแนน<b>${score}</b>`;
@@ -683,7 +686,8 @@ function listen(manual){
   rec=new SR();rec.lang="th-TH";rec.maxAlternatives=5;rec.interimResults=true;
   const mine=rec;recLive=true;micReady=false;
   // เริ่มนับเวลาเมื่อไมค์พร้อมฟังจริง ไม่ใช่ตอนสั่งเปิดไมค์ (เปิดไมค์บนมือถือใช้เวลาประมาณ 1 วินาที)
-  const ready=()=>{if(mine!==rec)return;micReady=true;if(armed&&!busy&&!timerOn)startTimer()};
+  const LT=performance.now();
+  const ready=()=>{if(mine!==rec)return;micReady=true;if(DEBUG)dbg("ไมค์พร้อมหลังสั่งเปิด "+Math.round(performance.now()-LT)+"ms");if(armed&&!busy&&!timerOn)startTimer()};
   rec.onaudiostart=ready;
   rec.onspeechstart=()=>{gotSpeech=true};
   rec.onstart=()=>{$("#mic").classList.add("live");dbg("เริ่มฟัง (เป้าหมาย: "+cur[0]+")")};
