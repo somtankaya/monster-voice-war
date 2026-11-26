@@ -129,6 +129,11 @@ button:focus-visible{outline:4px solid var(--gold);outline-offset:3px}
 #vgrid button{height:46px;border-radius:12px;background:var(--panel);border:2px solid var(--glass);font-size:22px;font-weight:700}
 #vgrid button.v{font-size:16px}
 #vtest #vclose{background:var(--gold);color:#3a2a00;font-weight:700;font-size:17px;padding:10px 22px;border-radius:14px}
+#rk{position:fixed;inset:0;display:none;z-index:45;background:#0b114afa;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:24px}
+#rk.on{display:flex}#rk h2{margin:0;line-height:1.4;font-size:clamp(22px,6.5vw,30px)}#rk p{margin:0;font-size:15px;opacity:.9;max-width:320px}
+#rk .rw{font-size:56px;font-weight:800;color:var(--gold)}#rk .b{display:flex;gap:12px}
+#rk button{background:var(--gold);color:#3a2a00;font-weight:700;font-size:17px;padding:12px 20px;border-radius:16px;box-shadow:0 4px 0 #a07800}
+#rk button.g,#rk button.sp{background:#ffffff22;color:#fff;box-shadow:none}
 #qc,#bye{position:fixed;inset:0;display:none;z-index:40;background:#0b114af5;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;padding:24px}
 #qc.on,#bye.on{display:flex}
 #qc h2,#bye h2{margin:0;line-height:1.4;font-size:clamp(24px,7vw,34px)}
@@ -256,6 +261,7 @@ button:focus-visible{outline:4px solid var(--gold);outline-offset:3px}
 </div>
 
 <div id="qc"><h2>ออกจากเกมนี้ใช่ไหม</h2><div class="b"><button id="qyes" type="button">ออก</button><button id="qno" class="g" type="button">เล่นต่อ</button></div></div>
+<div id="rk"><h2>คำนี้ถูกระบุว่าเป็นคำไม่สุภาพ</h2><div class="rw" id="rkw"></div><p>กดลำโพงเพื่อลองฟังก่อนได้ แล้วเลือกว่าจะใช้คำนี้หรือไม่</p><button id="rkspk" class="sp" type="button">ฟังเสียง</button><div class="b"><button id="rkyes" type="button">ยืนยัน เพิ่มคำนี้</button><button id="rkno" class="g" type="button">ยกเลิก</button></div></div>
 <div id="bye"><h2>ไว้เจอกันใหม่นะ</h2><p>ปิดเกมนี้ได้เลย โดยปัดปิดแท็บหรือปิดแอปเบราว์เซอร์</p><button id="byeback" type="button">กลับไปเล่นต่อ</button></div>
 <div id="vtest"><h2>ตรวจเสียง</h2><p>แตะตัวอักษรเพื่อฟังเสียงที่อัดไว้</p><div id="vgrid"></div><button id="vclose" type="button">ปิด</button></div>
 <div id="soon"><h2>ด่านนี้ยังไม่พร้อม<br>รอก่อนนะ</h2><button id="soonback" type="button">กลับหน้าแรก</button></div>
@@ -482,7 +488,7 @@ nun:`<svg viewBox="0 0 100 100"><path d="M50 8C26 8 18 28 18 54v38h64V54C82 28 7
 const C44=["ก","ข","ฃ","ค","ฅ","ฆ","ง","จ","ฉ","ช","ซ","ฌ","ญ","ฎ","ฏ","ฐ","ฑ","ฒ","ณ","ด","ต","ถ","ท","ธ","น","บ","ป","ผ","ฝ","พ","ฟ","ภ","ม","ย","ร","ล","ว","ศ","ษ","ส","ห","ฬ","อ","ฮ"];
 const QUOTA={easy:5,mid:10,hard:20};
 const VOWCH={aa:"า",ee:"ี"};
-const BANNED={aa:[],ee:["หี"]};
+const RISKY={aa:[],ee:["หี"]}; // คำสุ่มเสี่ยง (ไม่สุภาพ) กำหนดเองได้: ผู้ปกครองเลือกได้ แต่ต้องกดยืนยันก่อน
 const loadCustom=()=>{try{return JSON.parse(localStorage.getItem("mvw_custom")||"{}")||{}}catch(e){return {}}};
 const saveCustom=o=>{try{localStorage.setItem("mvw_custom",JSON.stringify(o));return true}catch(e){return false}};
 const customWords=(st,lv)=>{const a=((loadCustom()[st]||{})[lv]);return Array.isArray(a)&&a.length===QUOTA[lv]?a:null};
@@ -515,14 +521,22 @@ function openParent(){
 function drawParent(){
   $("#ptabs").innerHTML=Object.entries(LEVELS).map(([k,L])=>`<button type="button" data-k="${k}" class="${k===ptab?"on":""}" style="--c:${L.c}">${L.n}<small>${draft[k].length}/${QUOTA[k]}</small></button>`).join("");
   const vc=VOWCH[stage],sel=new Set(draft[ptab]);
-  $("#pgrid").innerHTML=C44.map(c=>{const w=c+vc,ban=BANNED[stage].includes(w);return `<button type="button" data-w="${w}" class="${sel.has(w)?"on":""}"${ban?" disabled":""}>${w}</button>`}).join("")+"<span></span>";
+  $("#pgrid").innerHTML=C44.map(c=>{const w=c+vc;return `<button type="button" data-w="${w}" class="${sel.has(w)?"on":""}">${w}</button>`}).join("")+"<span></span>";
 }
 $("#ptabs").onclick=e=>{const b=e.target.closest("button");if(!b)return;ptab=b.dataset.k;$("#pmsg").textContent=ptab==="hard"&&!draft.hard.length?"ถ้าไม่เลือก ระดับยากจะสุ่ม 20 คำจากทุกคำเหมือนเดิม":"";drawParent()};
 $("#pgrid").onclick=e=>{const b=e.target.closest("button[data-w]");if(!b)return;const w=b.dataset.w,a=draft[ptab],i=a.indexOf(w);
   if(i>=0){a.splice(i,1);$("#pmsg").textContent=""}
   else if(a.length>=QUOTA[ptab]){$("#pmsg").textContent=`เต็มโควตาแล้ว (${QUOTA[ptab]} คำ) เอาคำอื่นออกก่อนนะคะ`;return}
+  else if(RISKY[stage].includes(w)){askRisky(w,ptab);return}
   else a.push(w);
   drawParent()};
+let riskW=null,riskTab=null;
+function askRisky(w,tab){riskW=w;riskTab=tab;$("#rkw").textContent=w;$("#rk").classList.add("on")}
+$("#rkspk").onclick=()=>{if(riskW)speakWord(riskW)};
+$("#rkno").onclick=()=>{stopSpeech();riskW=null;$("#rk").classList.remove("on")};
+$("#rkyes").onclick=()=>{stopSpeech();const a=draft[riskTab];
+  if(riskW&&a&&a.length<QUOTA[riskTab]&&!a.includes(riskW))a.push(riskW);
+  riskW=null;$("#rk").classList.remove("on");$("#pmsg").textContent="";drawParent()};
 $("#preset").onclick=()=>{draft[ptab]=defaultWords(stage,ptab)?defaultWords(stage,ptab).slice():[];$("#pmsg").textContent="คืนค่าเดิมของระดับนี้แล้ว";drawParent()};
 $("#pcancel").onclick=()=>$("#parent").classList.remove("on");
 $("#psave").onclick=()=>{
