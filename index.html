@@ -384,25 +384,32 @@ let ch=0,php,ehp,score,queue=[],cur,busy=true,playing=false,rec=null,tmo=null,mi
 function thaiVoice(){try{const vs=speechSynthesis.getVoices().filter(v=>/^th/i.test(v.lang));if(!vs.length)return null;for(const re of [/premium/i,/enhanced/i,/natural|neural/i,/narisa|kanya|google/i]){const f=vs.find(v=>re.test(v.name));if(f)return f}return vs[0]}catch(e){return null}}
 try{speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>{}}catch(e){}
 // อ่านโจทย์ออกเสียง เช่น "กอ" แล้ว "อา" (เวลายังไม่เดินระหว่างนี้)
+let warmUntil=0;
+// อุ่นเครื่องเสียงพูดด้วยเสียงเงียบ ให้ iPhone สลับโหมดเสียงจากไมค์กลับมาเล่นเสียงระหว่างที่กระสุนกำลังยิง ไม่ใช่ตอนเริ่มอ่านโจทย์คำถัดไป
+function warmTTS(){try{if(speechSynthesis.speaking||speechSynthesis.pending)return;const u=new SpeechSynthesisUtterance(".");u.volume=0;u.lang="th-TH";warmUntil=Date.now()+700;speechSynthesis.speak(u)}catch(e){}}
+// ล้างคิวเสียงเฉพาะตอนที่มีเสียงค้างจริง (iPhone ช้าลงถ้าสั่งล้างโดยไม่จำเป็น)
+function clearSpeech(){try{if(Date.now()<warmUntil)return;if(speechSynthesis.speaking||speechSynthesis.pending)speechSynthesis.cancel()}catch(e){}}
+// อ่านโจทย์ออกเสียง เช่น "กอ" แล้ว "อา" (เวลายังไม่เดินระหว่างนี้)
+// iPhone แจ้งว่า "อ่านจบ" ช้ากว่าเสียงจริงราว 1 วินาที จึงไม่รอแจ้งจบของคำสุดท้าย แต่นับจากตอนที่เสียงคำสุดท้ายเริ่มแทน
+const LASTMS=800;
 function speakSeq(parts,done){
-  const id=++hintId;let finished=false,i=0,started=false,tries=0;
+  const id=++hintId;let finished=false,i=0,started=false;
   const fin=()=>{if(finished||id!==hintId)return;finished=true;done()};
   try{
-    if(speechSynthesis.speaking||speechSynthesis.pending)speechSynthesis.cancel();
+    clearSpeech();
     const say=()=>{
       if(id!==hintId||finished)return;
-      if(i>=parts.length){fin();return} // อ่านครบแล้วค่อยเปิดไมค์ (เปิดไมค์ระหว่างอ่านทำให้ iPhone ตัดเสียงท้าย)
-      const k=i;let live=true;
+      if(i>=parts.length){fin();return}
+      const k=i,last=k===parts.length-1;let live=true;
       const u=new SpeechSynthesisUtterance(parts[k]);u.lang="th-TH";u.rate=.92;u.volume=1;u.pitch=1.12;const v=thaiVoice();if(v)u.voice=v;
-      const go=()=>{if(!live)return;live=false;if(id!==hintId||finished)return;i=k+1;setTimeout(say,k+1>=parts.length?0:100)};
-      u.onstart=()=>{started=true};u.onend=go;u.onerror=go;
+      const go=()=>{if(!live)return;live=false;if(id!==hintId||finished)return;i=k+1;if(last)fin();else setTimeout(say,100)};
+      u.onstart=()=>{started=true;if(last)setTimeout(go,LASTMS)};
+      u.onend=go;u.onerror=go;
       speechSynthesis.speak(u);
-      // iPhone บางครั้งเสียงอ่านไม่เริ่มทันที (มักเกิดหลังใช้ไมค์): ถ้า 1 วินาทีแล้วยังเงียบ ให้ล้างคิวแล้วอ่านใหม่ 1 ครั้ง
-      if(k===0&&tries<1)setTimeout(()=>{if(!started&&live&&id===hintId&&!finished){tries++;live=false;try{speechSynthesis.cancel()}catch(e){}setTimeout(say,60)}},1000);
     };
     say();
-    setTimeout(()=>{if(started||finished||id!==hintId)return;$("#fb").textContent="ไม่ได้ยินเสียง? เช็กเสียงเครื่อง/โหมดเงียบ (ดูคำอ่านบนจอได้)";setTimeout(fin,1500)},2600);
-    setTimeout(fin,5000);
+    setTimeout(()=>{if(started||finished||id!==hintId)return;$("#fb").textContent="ไม่ได้ยินเสียง? เช็กเสียงเครื่อง/โหมดเงียบ (ดูคำอ่านบนจอได้)";setTimeout(fin,1500)},3500);
+    setTimeout(fin,7000);
   }catch(e){fin()}
 }
 
@@ -485,7 +492,7 @@ const MASCOT={
 };
 const showMascot=()=>{$("#mascot").innerHTML='<div class="pad2"></div>'+MASCOT[stage]};
 const hintParts=w=>[w[0][0]+"อ",STAGES[stage].vow];
-function stopSpeech(){hintId++;try{speechSynthesis.cancel()}catch(e){}}
+function stopSpeech(){hintId++;clearSpeech()}
 function startTimer(){
   armed=true;timerOn=true;extended=false;
   const bar=$("#timer div");bar.style.transition="none";bar.style.width="100%";bar.offsetWidth;
@@ -541,7 +548,7 @@ const isEcho=(heard,target)=>{const n=canon(heard),c=target[0],v=STAGES[stage].v
   return n===""||n===canon(v)||n==="\u0e2d"||n===canon(v+v)||n===canon(c+"\u0e2d")||n===canon(c+"\u0e2d"+v)};
 
 let actx,master;
-function ac(){try{if(!actx){actx=new (window.AudioContext||window.webkitAudioContext)();const cp=actx.createDynamicsCompressor();master=actx.createGain();master.gain.value=.5;master.connect(cp);cp.connect(actx.destination)}if(actx.state==="suspended")actx.resume();return actx}catch(e){return null}}
+function ac(){try{if(!actx){actx=new (window.AudioContext||window.webkitAudioContext)();const cp=actx.createDynamicsCompressor();master=actx.createGain();master.gain.value=.22;master.connect(cp);cp.connect(actx.destination)}if(actx.state==="suspended")actx.resume();return actx}catch(e){return null}}
 function noiseBuf(c,d){const b=c.createBuffer(1,Math.floor(c.sampleRate*d),c.sampleRate),a=b.getChannelData(0);for(let i=0;i<a.length;i++)a[i]=Math.random()*2-1;return b}
 function tone(f,d,t="sine"){const c=ac();if(!c)return;try{const o=c.createOscillator(),g=c.createGain();o.type=t;o.frequency.value=f;g.gain.value=.15;o.connect(g);g.connect(master);o.start();g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d);o.stop(c.currentTime+d)}catch(e){}}
 // เสียงปืนใหญ่ ตู้มมม: เสียงทุ้มตกลง + เสียงลมก้องในลำคอ + เสียงแตกตอนยิง
@@ -719,6 +726,7 @@ function judge(ok,heard,timeout,lowconf,conf){
   busy=true;armed=false;timerOn=false;clearTimeout(tmo);stopSpeech();
   $("#mic").classList.remove("ready");$("#mic").disabled=true;$("#hear").disabled=true;
   try{rec&&rec.abort()}catch(e){}
+  setTimeout(warmTTS,150);
   $("#timer div").style.transition="none";
   results.push({w:cur[0],ok:ok,p:typeof conf==="number"?conf:(ok?100:(timeout?bestAcc:0))});score+=ok?1:-1;if(!ok)missed[cur[0]]=(missed[cur[0]]||0)+1;
   bump(ok?1:-1);dbg((ok?"ถูก +1":"ผิด −1")+" → คะแนน "+score);
@@ -753,7 +761,7 @@ function shoot(from,to,done){
 }
 
 function finish(win){
-  playing=false;armed=false;clearTimeout(tmo);stopSpeech();
+  playing=false;armed=false;clearTimeout(tmo);stopSpeech();setTimeout(warmTTS,200);
   const loser=win?$("#mon"):$("#me"),winner=win?$("#me"):$("#mon");
   loser.querySelector(".who").style.visibility="hidden";
   const g=document.createElement("div");g.className="ghost";g.innerHTML=ART.ghost;loser.querySelector(".tank").appendChild(g);loser.classList.add("wrecked");
@@ -809,8 +817,8 @@ function showSummary(win){
 }
 $("#missed").onclick=e=>{const b=e.target.closest("button[data-w]");if(b)speakWord(b.dataset.w)};
 function speakWord(w){try{
-  hintId++;if(speechSynthesis.speaking||speechSynthesis.pending)speechSynthesis.cancel();
-  const u=new SpeechSynthesisUtterance(w);u.lang="th-TH";u.rate=.9;u.pitch=1.12;const v=thaiVoice();if(v)u.voice=v;
+  hintId++;clearSpeech();
+  const u=new SpeechSynthesisUtterance(w);u.lang="th-TH";u.rate=.9;u.volume=1;u.pitch=1.12;const v=thaiVoice();if(v)u.voice=v;
   speechSynthesis.speak(u)}catch(e){}}
 
 // พลุ
